@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Worked Example: Natasha Romanoff — Performance Enablement OS</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body { display: block !important; overflow-y: auto !important; height: auto !important; min-height: 100vh; }
+
+    .ex-wrap { max-width: 1280px; margin: 0 auto; padding: 28px 32px 80px; }
+
+    .ex-top {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-bottom: 18px; border-bottom: 1px solid var(--card-border); margin-bottom: 28px;
+    }
+    .ex-back { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .ex-back:hover { color: var(--accent); }
+    .ex-title-block { text-align: center; }
+    .ex-eyebrow { font-size: 11px; font-weight: 600; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+    .ex-title { font-size: 22px; font-weight: 700; }
+    .ex-stamp { font-size: 12px; color: var(--text-dim); text-align: right; }
+
+    /* Person header */
+    .person-card {
+      background: linear-gradient(135deg, rgba(124,106,247,0.10), rgba(124,106,247,0.02));
+      border: 1px solid var(--card-border); border-radius: var(--radius);
+      padding: 24px 28px; margin-bottom: 24px;
+      display: grid; grid-template-columns: 88px 1fr auto; gap: 24px; align-items: center;
+    }
+    .person-avatar {
+      width: 88px; height: 88px; border-radius: 50%;
+      background: linear-gradient(135deg, #fb923c, #f5c842);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 32px; color: #1a1a28;
+    }
+    .person-name { font-size: 24px; font-weight: 700; }
+    .person-role { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+    .person-meta { font-size: 12px; color: var(--text-dim); margin-top: 8px; }
+    .person-rating {
+      text-align: right; padding-left: 24px; border-left: 1px solid var(--card-border);
+    }
+    .rating-direction { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .rating-value { font-size: 26px; font-weight: 700; color: var(--exceeding); margin-top: 4px; }
+    .rating-track { font-size: 12px; color: var(--exceeding); margin-top: 2px; }
+
+    /* Section */
+    .section { margin-bottom: 32px; }
+    .section-num {
+      display: inline-block; padding: 3px 10px; border-radius: 12px;
+      background: rgba(124,106,247,0.18); color: var(--accent);
+      font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .section-h { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
+    .section-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; max-width: 880px; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+    .card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: var(--radius); padding: 18px;
+    }
+    .card-h { font-size: 13px; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+
+    .pill { font-size: 10px; padding: 3px 8px; border-radius: 10px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; }
+    .pill-green { background: rgba(74,222,128,0.15); color: var(--exceeding); }
+    .pill-blue  { background: rgba(96,165,250,0.15); color: var(--performing); }
+    .pill-amber { background: rgba(251,146,60,0.15); color: var(--dev-needed); }
+    .pill-red   { background: rgba(248,113,113,0.15); color: var(--unsatis); }
+    .pill-violet{ background: rgba(124,106,247,0.18); color: var(--accent); }
+    .pill-grey  { background: rgba(122,122,154,0.15); color: var(--text-muted); }
+
+    /* Evidence */
+    .evidence-list { display: flex; flex-direction: column; gap: 10px; }
+    .evidence-row {
+      display: grid; grid-template-columns: 110px 1fr auto; gap: 14px; align-items: center;
+      padding: 10px 12px; border-radius: var(--radius-sm); background: var(--input-bg);
+    }
+    .evidence-source { font-size: 11px; font-weight: 600; padding: 4px 8px; border-radius: 4px; text-align: center; }
+    .src-jira      { background: #1e3a5f; color: #93c5fd; }
+    .src-slack     { background: #4a154b30; color: #ecb22e; }
+    .src-confluence{ background: #1a3a5f; color: #6cb1ff; }
+    .src-csat      { background: #2d4a3a; color: #86efac; }
+    .src-calendar  { background: #3a2d4a; color: #d8b4fe; }
+    .src-1on1      { background: #3a4a2d; color: #bef264; }
+    .src-pulse    { background: #4a2d3a; color: #fda4af; }
+    .src-okrs      { background: #2d3a4a; color: #93c5fd; }
+    .evidence-text { font-size: 13px; color: var(--text); }
+    .evidence-text .muted { color: var(--text-muted); font-size: 12px; }
+    .evidence-meta { font-size: 11px; color: var(--text-dim); }
+
+    /* Loops */
+    .loops { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+    .loop {
+      border-radius: var(--radius); padding: 22px; border: 1px solid var(--card-border);
+    }
+    .loop.coaching { background: linear-gradient(135deg, rgba(96,165,250,0.08), rgba(96,165,250,0.02)); }
+    .loop.calibration { background: linear-gradient(135deg, rgba(245,200,66,0.06), rgba(245,200,66,0.01)); }
+    .loop h3 { font-size: 15px; margin-bottom: 4px; }
+    .loop .freq { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; }
+    .loop ul { list-style: none; padding: 0; }
+    .loop li {
+      font-size: 13px; padding: 8px 0; border-bottom: 1px solid var(--card-border);
+      display: flex; align-items: flex-start; gap: 8px;
+    }
+    .loop li:last-child { border-bottom: none; }
+    .loop li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; }
+
+    /* Projects */
+    .proj-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .proj-table th { text-align: left; padding: 10px 12px; color: var(--text-muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--card-border); }
+    .proj-table td { padding: 12px; border-bottom: 1px solid var(--card-border); }
+    .proj-table tr:last-child td { border-bottom: none; }
+    .rating { font-weight: 700; font-size: 14px; }
+
+    .rollup {
+      margin-top: 16px; padding: 16px; background: rgba(124,106,247,0.08); border-radius: var(--radius);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .rollup-label { font-size: 13px; color: var(--text-muted); }
+    .rollup-val { font-size: 22px; font-weight: 700; color: var(--accent); }
+
+    /* Metrics */
+    .metric { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 16px; }
+    .metric-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; }
+    .metric-value { font-size: 26px; font-weight: 700; margin-top: 6px; }
+    .metric-trend { font-size: 12px; margin-top: 4px; }
+    .trend-up { color: var(--exceeding); }
+    .trend-down { color: var(--unsatis); }
+    .trend-flat { color: var(--text-muted); }
+
+    /* Career framework */
+    .cf-row {
+      display: grid; grid-template-columns: 160px 1fr 1fr 1fr 1fr; gap: 1px;
+      background: var(--card-border); border: 1px solid var(--card-border); border-radius: var(--radius); overflow: hidden;
+    }
+    .cf-row > div { background: var(--card-bg); padding: 12px 14px; font-size: 12px; }
+    .cf-row .cf-h { font-weight: 600; background: var(--input-bg); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .cf-row .cf-dim { font-weight: 600; color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .cf-now { background: rgba(96,165,250,0.18) !important; color: #fff !important; font-weight: 600 !important; position: relative; }
+    .cf-now::after { content: "● now"; position: absolute; top: 6px; right: 8px; font-size: 9px; color: var(--performing); font-weight: 700; }
+    .cf-target { background: rgba(124,106,247,0.18) !important; color: #fff !important; font-weight: 600 !important; position: relative; }
+    .cf-target::after { content: "◆ target"; position: absolute; top: 6px; right: 8px; font-size: 9px; color: var(--accent); font-weight: 700; }
+
+    /* Marketplace */
+    .market-row {
+      display: grid; grid-template-columns: 36px 1fr auto auto; gap: 12px; align-items: center;
+      padding: 10px 12px; background: var(--input-bg); border-radius: var(--radius-sm); margin-bottom: 8px;
+    }
+    .match-bar { width: 80px; height: 6px; background: var(--card-border); border-radius: 3px; overflow: hidden; }
+    .match-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #a78bfa); }
+
+    /* Early warning */
+    .alert-row {
+      display: grid; grid-template-columns: 24px 1fr auto auto; gap: 14px; align-items: center;
+      padding: 12px 14px; border-radius: var(--radius-sm); background: var(--input-bg); margin-bottom: 8px;
+      border-left: 3px solid var(--text-dim);
+    }
+    .alert-row.amber { border-left-color: var(--dev-needed); }
+    .alert-row.red   { border-left-color: var(--unsatis); }
+    .alert-row.green { border-left-color: var(--exceeding); }
+    .alert-name { font-weight: 600; font-size: 13px; }
+    .alert-detail { color: var(--text-muted); font-size: 12px; }
+
+    /* Coaching note */
+    .coaching-card {
+      background: linear-gradient(135deg, rgba(74,222,128,0.06), rgba(74,222,128,0.01));
+      border: 1px solid rgba(74,222,128,0.20); border-left: 3px solid var(--exceeding);
+      border-radius: var(--radius); padding: 22px;
+    }
+    .coaching-card h3 { font-size: 14px; margin-bottom: 14px; color: var(--exceeding); }
+    .coaching-card p { font-size: 13px; color: var(--text); line-height: 1.6; margin-bottom: 12px; }
+    .coaching-card ul { font-size: 13px; color: var(--text); padding-left: 20px; line-height: 1.6; }
+    .coaching-card .meta { font-size: 11px; color: var(--text-dim); font-style: italic; margin-top: 12px; }
+
+    .footnote { font-size: 11px; color: var(--text-dim); margin-top: 14px; font-style: italic; }
+  </style>
+</head>
+<body>
+  <div style="background:#1a1a2e;border-bottom:2px solid #f59e0b;padding:10px 24px;font-size:12px;color:#fbbf24;text-align:center;letter-spacing:0.3px;"><strong>Illustrative demo only.</strong> All characters, teams and organisations are fictional (Marvel universe). No real individuals, companies or personal data are represented. Shared for concept discussion only.</div>
+
+<div class="ex-wrap">
+
+  <div class="ex-top">
+    <a href="demo.html" class="ex-back">← back to Potential Idea Demo</a>
+    <div class="ex-title-block">
+      <div class="ex-eyebrow">Worked Example</div>
+      <div class="ex-title">Performance Enablement OS, applied to one report</div>
+    </div>
+    <div class="ex-stamp">Mockup · based on research<br>not live data</div>
+  </div>
+
+  <!-- Person header -->
+  <div class="person-card">
+    <div class="person-avatar</div>
+    <div>
+      <div class="person-name">Natasha Romanoff</div>
+      <div class="person-role">SHIELD EU Lead · Manager-1 (M-track) · Global cluster</div>
+      <div class="person-meta">Q1 2026 snapshot · auto-synthesised from 312 evidence items across 8 sources</div>
+    </div>
+    <div class="person-rating">
+      <div class="rating-direction">Q1 Direction</div>
+      <div class="rating-value">Exceeding</div>
+      <div class="rating-track">↑ Trending up · M-track growth signal</div>
+    </div>
+  </div>
+
+  <!-- ─── 1. EVIDENCE PACK ────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-num">Module 1</div>
+    <div class="section-h">Evidence Pack — what the system has gathered, automatically</div>
+    <div class="section-sub">
+      Pulled from systems Natasha already works in. Manager edits and signs, Natasha sees the same evidence — no surprises.
+    </div>
+
+    <div class="grid-3" style="margin-bottom: 18px;">
+      <div class="card">
+        <div class="card-h">Confidence <span class="pill pill-violet">High</span></div>
+        <div style="font-size: 24px; font-weight: 700;">91%</div>
+        <div style="color: var(--text-muted); font-size: 12px; margin-top: 4px;">312 items across 8 sources</div>
+      </div>
+      <div class="card">
+        <div class="card-h">Bias Flags <span class="pill pill-grey">Clean</span></div>
+        <div style="font-size: 24px; font-weight: 700;">0</div>
+        <div style="color: var(--text-muted); font-size: 12px; margin-top: 4px;">no recency / halo / similarity patterns</div>
+      </div>
+      <div class="card">
+        <div class="card-h">Promo Signal <span class="pill pill-green">Strong</span></div>
+        <div style="font-size: 24px; font-weight: 700;">M-track</div>
+        <div style="color: var(--text-muted); font-size: 12px; margin-top: 4px;">L4 → L5 readiness on 3 of 4 dimensions</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h">Top evidence — Q1 2026 <span style="color: var(--text-muted); font-size: 11px;">manager edits the draft, both parties see it</span></div>
+      <div class="evidence-list">
+        <div class="evidence-row">
+          <div class="evidence-source src-slack">SLACK</div>
+          <div class="evidence-text">Selected as <strong>All Hands M-track growth showcase — signals managerial trust + visible growth narrative for SHIELD</span></div>
+          <div class="evidence-meta">Apr 17</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-source src-jira">JIRA</div>
+          <div class="evidence-text">SHIELD team took ownership of <strong>SHIELD APAC night-shift queue</strong> — training scheduled, coverage extends SHIELD support window by 8h/day</div>
+          <div class="evidence-meta">Apr</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-source src-calendar">CALENDAR</div>
+          <div class="evidence-text">Coordinated <strong>Global Summit speaker invites</strong> · 80% confirmed (Thor Odinson + Steve Rogers outstanding) <span class="muted">— cross-org logistics ownership</span></div>
+          <div class="evidence-meta">Apr</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-source src-1on1">1:1 NOTES</div>
+          <div class="evidence-text"><strong>Self-corrected on mobile device policy lapse</strong> — last follow-up March 27, acknowledged accountability without prompting <span class="muted">— growth signal: ownership over defensiveness</span></div>
+          <div class="evidence-meta">Apr 17</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-source src-pulse">PULSE</div>
+          <div class="evidence-text">Pushed Pulse survey to her team across reminders · SHIELD response rate <strong>89% (vs 67% org avg)</strong></div>
+          <div class="evidence-meta">Apr</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-source src-csat">CSAT</div>
+          <div class="evidence-text">SHIELD EU team CSAT held at <strong>4.71 / 5</strong> through Q1 despite scope expansion · 0 escalations</div>
+          <div class="evidence-meta">Q1</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-source src-jira">JIRA</div>
+          <div class="evidence-text"><strong>Mobile device policy follow-up</strong> · open since March 27 · flagged as Q1 development area</div>
+          <div class="evidence-meta">Open</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-source src-okrs">OKRS</div>
+          <div class="evidence-text">3 of 4 Q1 OKRs delivered on time · 1 OKR (mobile policy) at-risk and self-flagged</div>
+          <div class="evidence-meta">Q1</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── 2. TWO LOOPS ────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-num">Module 2</div>
+    <div class="section-h">Two Loops — what's happening this month vs this year</div>
+    <div class="section-sub">
+      Coaching cadence (low stakes, growth-focused) runs in parallel with the annual calibration cycle.
+    </div>
+
+    <div class="loops">
+      <div class="loop coaching">
+        <h3>🌀 Coaching loop · this month</h3>
+        <div class="freq">April · monthly cadence · low stakes</div>
+        <ul>
+          <li><strong>Nudge mobile device policy follow-up</strong> — agreed weekly cadence post-Apr 17 conversation</li>
+          <li>Surface 2–3 team pain-points for Joanna's All Hands slot (due Monday)</li>
+          <li>Provide Claude AI ticket volume + time data — for SHIELD AI strategy</li>
+          <li>Ana's case RCA — due Monday 11 AM</li>
+          <li>Coordinate iPhone + AirPod additions to Venko laptop order</li>
+        </ul>
+      </div>
+      <div class="loop calibration">
+        <h3>⚖️ Calibration loop · this year</h3>
+        <div class="freq">Annual · structured · high stakes</div>
+        <ul>
+          <li>Direction: <strong>Exceeding · Trending up</strong></li>
+          <li>Track: <strong>M-track</strong> · L4 → L5 candidacy validated by panel</li>
+          <li>3 project ratings completed Q1 (avg 4.4 / 5)</li>
+          <li>Bias check: clean across 4 stakeholder reviewers</li>
+          <li>All Hands speaker selection — visible growth signal documented</li>
+          <li><strong>No comp implication this cycle</strong> — comp decision in Dec calibration</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── 3. PROJECT ROLLUP ────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-num">Module 3</div>
+    <div class="section-h">Project Reviews → Q1 rating</div>
+    <div class="section-sub">
+      Each project rated by the people who actually worked with Natasha, immediately after delivery. Year rating is the weighted average.
+    </div>
+
+    <div class="card">
+      <div class="card-h">Q1 2026 projects · 3 reviewed <span class="pill pill-violet">12 stakeholder reviewers</span></div>
+      <table class="proj-table">
+        <thead>
+          <tr><th>Project</th><th>Stakeholders</th><th>Outcome</th><th>Rating</th><th>Weight</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>SHIELD APAC Night-Shift Coverage</strong><br><span style="color: var(--text-muted); font-size: 11px;">SHIELD scope expansion</span></td>
+            <td>Nick Fury, Wanda Maximoff, 3 SHIELD APAC leads</td>
+            <td>Coverage live April · training plan executed · CSAT held</td>
+            <td class="rating" style="color: var(--exceeding);">4.6</td>
+            <td>40%</td>
+          </tr>
+          <tr>
+            <td><strong>EU Summit Speaker Coordination</strong><br><span style="color: var(--text-muted); font-size: 11px;">Cross-org logistics</span></td>
+            <td>Nick Fury, Steve Rogers, Thor Odinson, 4 SHIELD EU leads</td>
+            <td>80% confirmations · 2 outstanding · agenda locked</td>
+            <td class="rating" style="color: var(--performing);">4.0</td>
+            <td>30%</td>
+          </tr>
+          <tr>
+            <td><strong>Global Skills Migration Support</strong><br><span style="color: var(--text-muted); font-size: 11px;">Operational execution</span></td>
+            <td>Carol Danvers, Wanda Maximoff, SHIELD Global team</td>
+            <td>Skills field removed cleanly · 0 escalations · Confluence pending</td>
+            <td class="rating" style="color: var(--exceeding);">4.5</td>
+            <td>30%</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="rollup">
+        <div>
+          <div class="rollup-label">Weighted Q1 aggregate</div>
+          <div style="font-size: 11px; color: var(--text-dim); margin-top: 4px;">(0.40×4.6) + (0.30×4.0) + (0.30×4.5) = 4.39</div>
+        </div>
+        <div class="rollup-val">4.39 / 5</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── 4. MANAGER SCORECARD ─────────────────────────────────── -->
+  <div class="section">
+    <div class="section-num">Module 4</div>
+    <div class="section-h">Manager Scorecard — Natasha manages the SHIELD EU team</div>
+    <div class="section-sub">
+      Because Natasha is M-track with direct reports, she has her own scorecard. Director sees this as part of their own scorecard (cascade).
+    </div>
+
+    <div class="grid-4">
+      <div class="metric">
+        <div class="metric-label">Team eNPS (SHIELD EU)</div>
+        <div class="metric-value">+58</div>
+        <div class="metric-trend trend-up">↑ +9 vs last cycle</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Regretted attrition</div>
+        <div class="metric-value">0%</div>
+        <div class="metric-trend trend-flat">— flat (12 months)</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Internal mobility</div>
+        <div class="metric-value">2</div>
+        <div class="metric-trend trend-up">↑ 1 lateral, 1 promotion</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Growth conversations</div>
+        <div class="metric-value">100%</div>
+        <div class="metric-trend trend-up">↑ vs 73% org avg</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Pulse response rate</div>
+        <div class="metric-value">89%</div>
+        <div class="metric-trend trend-up">↑ vs 67% org avg</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">CSAT (SHIELD EU queue)</div>
+        <div class="metric-value">4.71</div>
+        <div class="metric-trend trend-flat">— held through scope expansion</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Skip-level concerns</div>
+        <div class="metric-value">0</div>
+        <div class="metric-trend trend-flat">— none raised</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Bias flag rate</div>
+        <div class="metric-value">0.00</div>
+        <div class="metric-trend trend-flat">clean</div>
+      </div>
+    </div>
+    <div class="footnote">Aggregated outcomes — not surveillance. Natasha sees her own scorecard. Nick Fury sees it as part of his.</div>
+  </div>
+
+  <!-- ─── 5. CAREER FRAMEWORK V2 ───────────────────────────────── -->
+  <div class="section">
+    <div class="section-num">Module 5</div>
+    <div class="section-h">Career Framework v2 — where Natasha is, where she's heading</div>
+    <div class="section-sub">
+      Anchored in real artifacts. Blue cells = current level on each dimension. Violet cells = target for next move.
+      Promotion candidacy = strong on 3 of 4 dimensions, target on 1.
+    </div>
+
+    <div class="cf-row">
+      <div class="cf-h">Dimension</div>
+      <div class="cf-h">L3 · Lead</div>
+      <div class="cf-h">L4 · Senior Lead</div>
+      <div class="cf-h">L5 · Manager / Head</div>
+      <div class="cf-h">L6 · Senior Manager</div>
+
+      <div class="cf-dim">Scope</div>
+      <div>Owns shift</div>
+      <div>Owns team queue</div>
+      <div class="cf-now">Owns multi-region team (SHIELD EU + APAC support)</div>
+      <div>Owns multiple teams / function</div>
+
+      <div class="cf-dim">Influence</div>
+      <div>Influences peers</div>
+      <div>Influences team</div>
+      <div class="cf-now">Influences cross-region peers + Director's leadership group</div>
+      <div>Influences SHIELD strategy</div>
+
+      <div class="cf-dim">Ambiguity handling</div>
+      <div>Solves defined</div>
+      <div>Frames within scope</div>
+      <div>Frames cross-team</div>
+      <div class="cf-target">Sets multi-quarter direction (mobile policy + AI rollout)</div>
+
+      <div class="cf-dim">Values & Behaviours</div>
+      <div>Lives SHIELD values</div>
+      <div>Models for peers</div>
+      <div class="cf-now">Self-corrects + mentors (Apr 17 mobile policy moment)</div>
+      <div>Sets cultural standards</div>
+
+      <div class="cf-dim">AI Augmentation ★</div>
+      <div>Uses AI tools</div>
+      <div class="cf-now">Provides ticket data for AI strategy · early adopter</div>
+      <div class="cf-target">Builds AI-augmented SHIELD workflow · 5× team output on triage</div>
+      <div>Defines org AI direction</div>
+
+      <div class="cf-dim">Anchored example</div>
+      <div>—</div>
+      <div>—</div>
+      <div style="font-style: italic; color: var(--text-muted);">"All Hands M-track growth showcase, Apr 2026"</div>
+      <div style="font-style: italic; color: var(--text-muted);">→ next promo target</div>
+    </div>
+  </div>
+
+  <!-- ─── 6. TALENT MARKETPLACE ─────────────────────────────────── -->
+  <div class="section">
+    <div class="section-num">Module 6</div>
+    <div class="section-h">Talent Marketplace — where Natasha could go next</div>
+    <div class="section-sub">
+      System matches her to internal roles based on the evidence pack. No CV upload, no separate skills survey.
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-h">Open internal roles · top 3 matches <span class="pill pill-violet">L5 candidate</span></div>
+
+        <div class="market-row">
+          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#fb923c,#f5c842);display:flex;align-items:center;justify-content:center;font-weight:700;color:#1a1a28;font-size:11px;">L5</div>
+          <div>
+            <div style="font-weight:600;font-size:13px;">Head of Local Service Desk · Global Cluster</div>
+            <div style="color: var(--text-muted); font-size: 12px;">Direct promotion · current scope + Latam coverage</div>
+          </div>
+          <div class="match-bar"><div class="match-fill" style="width: 92%;"></div></div>
+          <div style="font-weight:700; color: var(--exceeding);">92%</div>
+        </div>
+
+        <div class="market-row">
+          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#a78bfa,#7c6af7);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:11px;">L5</div>
+          <div>
+            <div style="font-weight:600;font-size:13px;">SHIELD AI Enablement Lead</div>
+            <div style="color: var(--text-muted); font-size: 12px;">Stretch lateral · plays into Natasha's data + AI engagement</div>
+          </div>
+          <div class="match-bar"><div class="match-fill" style="width: 78%;"></div></div>
+          <div style="font-weight:700; color: var(--performing);">78%</div>
+        </div>
+
+        <div class="market-row">
+          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#60a5fa,#7c6af7);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:11px;">L5</div>
+          <div>
+            <div style="font-weight:600;font-size:13px;">Global Operations Manager · SHIELD</div>
+            <div style="color: var(--text-muted); font-size: 12px;">Lateral · cross-region exposure already proven</div>
+          </div>
+          <div class="match-bar"><div class="match-fill" style="width: 71%;"></div></div>
+          <div style="font-weight:700; color: var(--performing);">71%</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-h">Backfill economics <span class="pill pill-green">Save €50K</span></div>
+        <div style="display:flex; flex-direction: column; gap: 14px;">
+          <div>
+            <div style="font-size:11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">External hire cost avoided</div>
+            <div style="font-size: 24px; font-weight: 700; color: var(--exceeding);">€32,000</div>
+            <div style="font-size: 11px; color: var(--text-dim);">Mercer EU avg, L5 tech operations</div>
+          </div>
+          <div>
+            <div style="font-size:11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Backfill arbitrage (L4 hire below)</div>
+            <div style="font-size: 24px; font-weight: 700;">€18,000</div>
+            <div style="font-size: 11px; color: var(--text-dim);">Promote-one-hire-below model</div>
+          </div>
+          <div>
+            <div style="font-size:11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Time-to-productive</div>
+            <div style="font-size: 24px; font-weight: 700;">3 weeks</div>
+            <div style="font-size: 11px; color: var(--text-dim);">vs ~12 weeks for external L5 hire</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── 7. EARLY WARNING ────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-num">Module 7</div>
+    <div class="section-h">Early Warning Signals — for Natasha, this quarter</div>
+    <div class="section-sub">
+      Watches both directions. One amber to address, two greens to act on.
+    </div>
+
+    <div class="card">
+      <div class="alert-row green">
+        <div style="font-size:16px;">🟢</div>
+        <div>
+          <div class="alert-name">All Hands M-track growth showcase selected</div>
+          <div class="alert-detail">Visible growth narrative + leadership trust signal · documented for promo case</div>
+        </div>
+        <div><span class="pill pill-green">Promo signal</span></div>
+        <button style="font-size:11px; padding: 5px 10px; border-radius: 4px; background: var(--accent); color: #fff; border: none; font-weight: 600; cursor: pointer;">Build promo case</button>
+      </div>
+
+      <div class="alert-row green">
+        <div style="font-size:16px;">🟢</div>
+        <div>
+          <div class="alert-name">L4 → L5 thresholds crossed on 3 of 4 dimensions</div>
+          <div class="alert-detail">Scope, influence, values&behaviours all at L5 · ambiguity-handling on threshold</div>
+        </div>
+        <div><span class="pill pill-green">Promo signal</span></div>
+        <button style="font-size:11px; padding: 5px 10px; border-radius: 4px; background: var(--accent); color: #fff; border: none; font-weight: 600; cursor: pointer;">Schedule panel</button>
+      </div>
+
+      <div class="alert-row amber">
+        <div style="font-size:16px;">🟠</div>
+        <div>
+          <div class="alert-name">Mobile device policy follow-up gap</div>
+          <div class="alert-detail">Last action March 27 · 21-day stall · self-acknowledged Apr 17 · weekly cadence agreed</div>
+        </div>
+        <div><span class="pill pill-amber">Watch</span></div>
+        <button style="font-size:11px; padding: 5px 10px; border-radius: 4px; background: var(--accent); color: #fff; border: none; font-weight: 600; cursor: pointer;">Confirm next action</button>
+      </div>
+
+      <div class="alert-row green">
+        <div style="font-size:16px;">🟢</div>
+        <div>
+          <div class="alert-name">Team eNPS up +9 to +58</div>
+          <div class="alert-detail">SHIELD EU team health improving while scope is expanding · counter-intuitively positive</div>
+        </div>
+        <div><span class="pill pill-green">Strength</span></div>
+        <button style="font-size:11px; padding: 5px 10px; border-radius: 4px; background: var(--accent); color: #fff; border: none; font-weight: 600; cursor: pointer;">Note for All Hands</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── COACHING NOTE ────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-num">Coaching Loop · auto-drafted</div>
+    <div class="section-h">1-page coaching note for Director's next 1:1 with Natasha</div>
+    <div class="section-sub">
+      Synthesised from the evidence pack + project ratings + early-warning signals. Director edits/approves before the 1:1.
+    </div>
+
+    <div class="coaching-card">
+      <h3>Q1 Coaching Note · Natasha Romanoff</h3>
+
+      <p><strong>Direction:</strong> Exceeding, trending up. M-track growth signals are strong and external (All Hands speaker selection). She's ready for an L5 conversation in the next promotion cycle if she closes the one open development gap.</p>
+
+      <p><strong>Top strength to reinforce:</strong> She self-corrected on the mobile device policy lapse without being prompted (Apr 17). That's L5 behaviour — ownership over defensiveness. Name it explicitly in the 1:1; it's the moment that moved her from "candidate" to "ready" in your panel's eyes.</p>
+
+      <p><strong>One thing to coach this month:</strong></p>
+      <ul>
+        <li><strong>Close the mobile device policy loop.</strong> Agreed weekly cadence post-Apr 17. Hold her to it — this is the one open dimension blocking a clean L5 case.</li>
+      </ul>
+
+      <p><strong>What she needs from you Monday:</strong></p>
+      <ul>
+        <li>Receive the Ana RCA at 11 AM (she'll deliver)</li>
+        <li>Confirm Claude AI ticket data scope before she pulls it</li>
+        <li>Help shape the 2–3 questions she's collecting for Joanna's All Hands slot</li>
+        <li>Decision needed: iPhone + AirPod additions to Venko laptop order — coordinate or delegate to her</li>
+      </ul>
+
+      <p><strong>Forward signal:</strong> Talent marketplace shows 92% match for "Head of SHIELD Ops · Global Cluster" — that role is the natural next move. Worth previewing in the 1:1 if you're aligned. If not, the AI Enablement Lead role is a 78% stretch alternative.</p>
+
+      <p class="meta">Drafted by the system from 312 evidence items · 0 bias flags · awaiting Director's edits before delivery</p>
+    </div>
+  </div>
+
+  <div style="margin-top: 40px; padding: 22px; border: 1px dashed var(--card-border); border-radius: var(--radius); text-align: center;">
+    <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px;">What this is</div>
+    <div style="font-size: 13px; color: var(--text); max-width: 760px; margin: 0 auto; line-height: 1.6;">
+      A worked example of the seven Performance Enablement modules applied to one real direct report.
+      Same data sources, same logic, same output format — every other person on the team would get a snapshot in the same shape,
+      generated from <em>their</em> evidence, not Natasha's. The point is consistency without rigidity, and depth without manager burden.
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

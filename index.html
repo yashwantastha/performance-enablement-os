@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Potential Idea Demo — Performance Enablement OS — SHIELD Demo</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ── Demo-only styles (no impact on main app) ──────────────────── */
+    body { display: block !important; overflow-y: auto !important; height: auto !important; min-height: 100vh; }
+
+    .demo-wrap { max-width: 1280px; margin: 0 auto; padding: 28px 32px 80px; }
+
+    .demo-top {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-bottom: 18px; border-bottom: 1px solid var(--card-border); margin-bottom: 28px;
+    }
+    .demo-back {
+      color: var(--text-muted); text-decoration: none; font-size: 13px;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .demo-back:hover { color: var(--accent); }
+    .demo-title-block { text-align: center; }
+    .demo-eyebrow {
+      font-size: 11px; font-weight: 600; color: var(--accent); letter-spacing: 1px;
+      text-transform: uppercase; margin-bottom: 6px;
+    }
+    .demo-title { font-size: 22px; font-weight: 700; color: var(--text); }
+    .demo-stamp { font-size: 12px; color: var(--text-dim); text-align: right; }
+    .demo-stamp strong { color: var(--accent); }
+
+    .demo-hero {
+      background: linear-gradient(135deg, rgba(124,106,247,0.10), rgba(124,106,247,0.02));
+      border: 1px solid var(--card-border); border-radius: var(--radius);
+      padding: 24px 28px; margin-bottom: 24px;
+    }
+    .demo-hero h2 { font-size: 18px; margin-bottom: 8px; }
+    .demo-hero p { color: var(--text-muted); font-size: 14px; max-width: 920px; }
+
+    .ana-quote {
+      background: var(--card-bg); border-left: 3px solid var(--accent);
+      border-radius: var(--radius-sm); padding: 14px 18px; margin-bottom: 24px;
+      display: grid; grid-template-columns: 48px 1fr; gap: 14px; align-items: center;
+    }
+    .ana-quote .ava {
+      width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #f5c842, #fb923c);
+      display: flex; align-items: center; justify-content: center; font-weight: 700; color: #1a1a28;
+    }
+    .ana-quote .q { font-size: 14px; font-style: italic; color: var(--text); margin-bottom: 4px; }
+    .ana-quote .a { font-size: 11px; color: var(--text-muted); }
+    .ana-quote .a a { color: var(--accent); text-decoration: none; }
+
+    /* Tabs */
+    .demo-tabs {
+      display: flex; gap: 4px; margin-bottom: 24px; flex-wrap: wrap;
+      border-bottom: 1px solid var(--card-border);
+      position: sticky; top: 0; z-index: 20;
+      background: var(--body-bg); padding-top: 8px;
+    }
+    .demo-tab {
+      padding: 10px 16px; cursor: pointer; font-size: 13px; font-weight: 500;
+      color: var(--text-muted); border-bottom: 2px solid transparent;
+      transition: all 0.15s; background: none; border-top: none; border-left: none; border-right: none;
+      white-space: nowrap;
+    }
+    .demo-tab:hover { color: var(--text); }
+    .demo-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    @media (max-width: 640px) {
+      .demo-tabs { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+      .demo-tabs::-webkit-scrollbar { display: none; }
+      .demo-tab { font-size: 12px; padding: 8px 12px; }
+    }
+
+    .demo-panel { display: none; }
+    .demo-panel.active { display: block; }
+
+    .panel-h { font-size: 16px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+    .panel-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; max-width: 880px; }
+
+    /* Grid + cards */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+    .card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: var(--radius); padding: 18px;
+    }
+    .card-h { font-size: 13px; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+    .card-h .pill { font-size: 10px; padding: 3px 8px; border-radius: 10px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; }
+
+    .pill-green { background: rgba(74,222,128,0.15); color: var(--exceeding); }
+    .pill-blue  { background: rgba(96,165,250,0.15); color: var(--performing); }
+    .pill-amber { background: rgba(251,146,60,0.15); color: var(--dev-needed); }
+    .pill-red   { background: rgba(248,113,113,0.15); color: var(--unsatis); }
+    .pill-yellow{ background: rgba(245,200,66,0.15); color: var(--outstanding); }
+    .pill-violet{ background: rgba(124,106,247,0.18); color: var(--accent); }
+    .pill-grey  { background: rgba(122,122,154,0.15); color: var(--text-muted); }
+
+    /* Evidence pack */
+    .evidence-list { display: flex; flex-direction: column; gap: 10px; }
+    .evidence-row {
+      display: grid; grid-template-columns: 110px 1fr auto; gap: 14px; align-items: center;
+      padding: 10px 12px; border-radius: var(--radius-sm); background: var(--input-bg);
+    }
+    .evidence-source {
+      font-size: 11px; font-weight: 600; padding: 4px 8px; border-radius: 4px; text-align: center;
+    }
+    .src-jira      { background: #1e3a5f; color: #93c5fd; }
+    .src-github    { background: #2a2a3a; color: #c9d1d9; }
+    .src-slack     { background: #4a154b30; color: #ecb22e; }
+    .src-confluence{ background: #1a3a5f; color: #6cb1ff; }
+    .src-csat      { background: #2d4a3a; color: #86efac; }
+    .src-calendar  { background: #3a2d4a; color: #d8b4fe; }
+    .src-marketplace { background: #4a3a1f; color: #fbbf24; }
+    .evidence-text { font-size: 13px; color: var(--text); }
+    .evidence-text .muted { color: var(--text-muted); font-size: 12px; }
+    .evidence-meta { font-size: 11px; color: var(--text-dim); }
+
+    /* Two loops */
+    .loops { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+    .loop {
+      border-radius: var(--radius); padding: 22px; border: 1px solid var(--card-border);
+    }
+    .loop.coaching { background: linear-gradient(135deg, rgba(96,165,250,0.08), rgba(96,165,250,0.02)); }
+    .loop.calibration { background: linear-gradient(135deg, rgba(245,200,66,0.06), rgba(245,200,66,0.01)); }
+    .loop h3 { font-size: 15px; margin-bottom: 4px; }
+    .loop .freq { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; }
+    .loop ul { list-style: none; padding: 0; }
+    .loop li {
+      font-size: 13px; padding: 8px 0; border-bottom: 1px solid var(--card-border);
+      display: flex; align-items: flex-start; gap: 8px;
+    }
+    .loop li:last-child { border-bottom: none; }
+    .loop li::before { content: "→"; color: var(--accent); font-weight: 600; flex-shrink: 0; }
+
+    /* Project rollup */
+    .proj-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .proj-table th { text-align: left; padding: 10px 12px; color: var(--text-muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--card-border); }
+    .proj-table td { padding: 12px; border-bottom: 1px solid var(--card-border); }
+    .proj-table tr:last-child td { border-bottom: none; }
+    .proj-table .rating { font-weight: 700; font-size: 14px; }
+
+    .rollup {
+      margin-top: 16px; padding: 16px; background: rgba(124,106,247,0.08); border-radius: var(--radius);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .rollup-label { font-size: 13px; color: var(--text-muted); }
+    .rollup-val { font-size: 22px; font-weight: 700; color: var(--accent); }
+
+    /* Manager scorecard */
+    .metric {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: var(--radius); padding: 16px;
+    }
+    .metric-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; }
+    .metric-value { font-size: 26px; font-weight: 700; margin-top: 6px; }
+    .metric-trend { font-size: 12px; margin-top: 4px; }
+    .trend-up { color: var(--exceeding); }
+    .trend-down { color: var(--unsatis); }
+    .trend-flat { color: var(--text-muted); }
+
+    /* Career framework matrix */
+    .cf-grid {
+      display: grid; grid-template-columns: 140px repeat(4, 1fr); gap: 1px;
+      background: var(--card-border); border: 1px solid var(--card-border); border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .cf-grid > div { background: var(--card-bg); padding: 12px 14px; font-size: 12px; }
+    .cf-grid .cf-h { font-weight: 600; color: var(--text); background: var(--input-bg); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .cf-grid .cf-dim { font-weight: 600; color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .cf-grid .cf-cell { color: var(--text); line-height: 1.4; }
+    .cf-grid .cf-ai { background: linear-gradient(135deg, rgba(124,106,247,0.10), rgba(124,106,247,0.02)) !important; }
+
+    /* Talent marketplace */
+    .market-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: var(--radius); padding: 16px;
+    }
+    .market-row {
+      display: grid; grid-template-columns: 36px 1fr auto auto; gap: 12px; align-items: center;
+      padding: 10px 12px; background: var(--input-bg); border-radius: var(--radius-sm); margin-bottom: 8px;
+    }
+    .market-name { font-weight: 600; font-size: 13px; }
+    .market-detail { color: var(--text-muted); font-size: 12px; }
+    .match-bar { width: 80px; height: 6px; background: var(--card-border); border-radius: 3px; overflow: hidden; }
+    .match-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #a78bfa); }
+
+    /* Early warning */
+    .alert-row {
+      display: grid; grid-template-columns: 24px 1fr auto auto; gap: 14px; align-items: center;
+      padding: 12px 14px; border-radius: var(--radius-sm); background: var(--input-bg); margin-bottom: 8px;
+      border-left: 3px solid var(--text-dim);
+    }
+    .alert-row.amber { border-left-color: var(--dev-needed); }
+    .alert-row.red   { border-left-color: var(--unsatis); }
+    .alert-row.green { border-left-color: var(--exceeding); }
+    .alert-icon { font-size: 16px; }
+    .alert-name { font-weight: 600; font-size: 13px; }
+    .alert-detail { color: var(--text-muted); font-size: 12px; }
+    .alert-cta {
+      font-size: 11px; padding: 5px 10px; border-radius: 4px; background: var(--accent);
+      color: #fff; cursor: pointer; border: none; font-weight: 600;
+    }
+
+    /* Case study cards */
+    .case-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: var(--radius); padding: 18px; display: flex; flex-direction: column;
+    }
+    .case-logo { font-weight: 700; font-size: 16px; margin-bottom: 4px; }
+    .case-tag { font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+    .case-section { margin-bottom: 10px; }
+    .case-section .lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+    .case-section .val { font-size: 12px; color: var(--text); line-height: 1.5; }
+    .case-quote {
+      margin-top: auto; padding: 10px 12px; background: var(--input-bg); border-radius: var(--radius-sm);
+      font-size: 11px; font-style: italic; color: var(--text-muted); border-left: 2px solid var(--accent);
+    }
+
+    /* Pitch */
+    .pitch-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    .pitch-block {
+      background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius);
+      padding: 18px;
+    }
+    .pitch-block .num {
+      width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #fff;
+      display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px;
+      margin-bottom: 10px;
+    }
+    .pitch-block h4 { font-size: 13px; margin-bottom: 6px; }
+    .pitch-block p { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+    .footnote { font-size: 11px; color: var(--text-dim); margin-top: 14px; font-style: italic; }
+    .source-blob {
+      display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px;
+      border-radius: 10px; font-size: 11px; background: var(--input-bg); color: var(--text-muted);
+    }
+
+    /* Plain language explainer (every tab opens with one) */
+    .plain-words {
+      background: linear-gradient(135deg, rgba(74,222,128,0.08), rgba(74,222,128,0.02));
+      border: 1px solid rgba(74,222,128,0.20); border-left: 3px solid var(--exceeding);
+      border-radius: var(--radius); padding: 14px 18px; margin-bottom: 22px;
+    }
+    .plain-words .pw-label {
+      font-size: 10px; font-weight: 700; color: var(--exceeding); letter-spacing: 0.8px;
+      text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;
+    }
+    .plain-words .pw-text { font-size: 13.5px; color: var(--text); line-height: 1.55; }
+    .plain-words .pw-text strong { color: var(--exceeding); }
+
+    /* AI Act callout */
+    .legal-box {
+      background: rgba(248,113,113,0.06); border: 1px solid rgba(248,113,113,0.25);
+      border-radius: var(--radius); padding: 16px; margin-top: 18px;
+    }
+    .legal-box h4 { font-size: 13px; color: var(--unsatis); margin-bottom: 6px; }
+    .legal-box p { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div style="background:#1a1a2e;border-bottom:2px solid #f59e0b;padding:10px 24px;font-size:12px;color:#fbbf24;text-align:center;letter-spacing:0.3px;"><strong>Illustrative demo only.</strong> All characters, teams and organisations are fictional (Marvel universe). No real individuals, companies or personal data are represented. Shared for concept discussion only.</div>
+
+<div class="demo-wrap">
+
+  <div class="demo-top">
+    <a href="index.html" class="demo-back">← back to my-work</a>
+    <div class="demo-title-block">
+      <div class="demo-eyebrow">Potential Idea Demo</div>
+      <div class="demo-title">Performance Enablement OS — SHIELD Demo</div>
+    </div>
+    <div class="demo-stamp">Mockup · based on research<br>not live data</div>
+  </div>
+
+  <div class="demo-hero">
+    <h2>What if performance reviews worked differently?</h2>
+    <p>
+      A working prototype exploring what modern performance management could look like — built after researching how Adobe, Microsoft,
+      Google, Netflix, Deloitte, Accenture, and others have redesigned theirs. Seven modules, each addressing one structural problem
+      with how reviews are done today. Use the tabs to walk through them. Each tab opens with a plain-language explainer.
+    </p>
+    <a href="demo-example-natasha.html" style="display: inline-flex; align-items: center; gap: 8px; margin-top: 16px; padding: 10px 18px; background: var(--accent); color: #fff; text-decoration: none; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; transition: background 0.15s;" onmouseover="this.style.background='var(--accent-hover)'" onmouseout="this.style.background='var(--accent)'">
+      ▶ See this applied to one real example (Natasha)
+    </a>
+  </div>
+
+  <div class="ana-quote">
+    <div class="ava">MH</div>
+    <div>
+      <div class="q">"Performance is one part. We also need behaviour, role readiness, span of control — and we need to hire ICs, not more managers. Internal mobility should be the first answer, not external hiring. And AI fluency has to be a KPI, not a nice-to-have."</div>
+      <div class="a">Maria Hill · HRBP · <a href="#">feedback session Apr 2026</a></div>
+    </div>
+  </div>
+
+  <div class="demo-tabs">
+    <button class="demo-tab active" data-tab="evidence">1 · Evidence Pack</button>
+    <button class="demo-tab" data-tab="loops">2 · Two Loops</button>
+    <button class="demo-tab" data-tab="projects">3 · Project Rollup</button>
+    <button class="demo-tab" data-tab="scorecard">4 · Manager Scorecard</button>
+    <button class="demo-tab" data-tab="framework">5 · Career Framework v2</button>
+    <button class="demo-tab" data-tab="marketplace">6 · Talent Marketplace</button>
+    <button class="demo-tab" data-tab="warning">7 · Early Warning</button>
+    <button class="demo-tab" data-tab="projection">8 · Projection</button>
+    <button class="demo-tab" data-tab="cases">📚 Case Studies</button>
+  </div>
+
+  <!-- ─── EVIDENCE PACK ─────────────────────────────────────────── -->
+  <div class="demo-panel active" id="panel-evidence">
+    <div class="panel-h">1 · Evidence Pack</div>
+    <div class="plain-words">
+      <div class="pw-label">💡 In plain language</div>
+      <div class="pw-text">
+        Today, your manager writes your review from memory — and forgets most of the year. With this, AI <strong>gathers proof from the systems you already work in</strong>
+        (Jira, Confluence, Slack, CSAT, calendar) and drafts a one-page evidence summary. Your manager edits and signs it. You see the same evidence — <strong>no surprises, no recency bias, no "I forgot what you did in February"</strong>.
+      </div>
+    </div>
+    <div class="panel-sub">
+      Outcomes aggregation, not activity monitoring. Cuts manager prep ~70% (Adobe data). The report gets something concrete to challenge or build on, instead of a manager's hazy summary judgement.
+    </div>
+
+    <div class="grid-3" style="margin-bottom: 22px;">
+      <div class="card">
+        <div class="card-h">Direction <span class="pill pill-green">↑ Trending Up</span></div>
+        <div style="font-size: 24px; font-weight: 700;">Exceeding</div>
+        <div style="color: var(--text-muted); font-size: 12px; margin-top: 4px;">vs. expectations for level</div>
+      </div>
+      <div class="card">
+        <div class="card-h">Confidence <span class="pill pill-violet">High</span></div>
+        <div style="font-size: 24px; font-weight: 700;">87%</div>
+        <div style="color: var(--text-muted); font-size: 12px; margin-top: 4px;">247 evidence items · 6 sources</div>
+      </div>
+      <div class="card">
+        <div class="card-h">Bias Flags <span class="pill pill-grey">Clean</span></div>
+        <div style="font-size: 24px; font-weight: 700;">0</div>
+        <div style="color: var(--text-muted); font-size: 12px; margin-top: 4px;">no recency / halo / similarity patterns</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h">Top Evidence — Peter P. · Q1 2026 <span style="color: var(--text-muted); font-size: 11px;">drafted by Claude, signed by manager</span></div>
+      <div class="evidence-list">
+        <div class="evidence-row">
+          <div class="evidence-source src-jira">JIRA</div>
+          <div class="evidence-text">Closed <strong>34 IAM & MFA tickets</strong> · median resolution 2.1h (team median 4.6h) <span class="muted">— consistent throughput across 12 weeks</span></div>
+          <div class="evidence-meta">Jan–Mar</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-source src-confluence">CONFLUENCE</div>
+          <div class="evidence-text">Authored <strong>"IAM Account Recovery Walkthrough"</strong> · 387 views, cited in 4 other team docs</div>
+          <div class="evidence-meta">Feb 12</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-source src-slack">SLACK</div>
+          <div class="evidence-text">Selected to <strong>speak at All Hands as IC growth showcase</strong> <span class="muted">— signal of managerial trust + visible growth narrative</span></div>
+          <div class="evidence-meta">Apr 17</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-source src-csat">CSAT</div>
+          <div class="evidence-text">Avg ticket CSAT <strong>4.84 / 5</strong> · 0 escalations · 2 unsolicited compliments from end users</div>
+          <div class="evidence-meta">Q1</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-source src-jira">JIRA</div>
+          <div class="evidence-text">Atlassian Analytics dashboard ownership · drilldown bug <strong>still open</strong> <span class="muted">— flagged as development area</span></div>
+          <div class="evidence-meta">Open</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-source src-calendar">CALENDAR</div>
+          <div class="evidence-text">Hosted <strong>3 cross-team enablement sessions</strong> on IAM recovery (avg 14 attendees)</div>
+          <div class="evidence-meta">Q1</div>
+        </div>
+      </div>
+      <div class="footnote">
+        Adobe documented <strong>~80,000 manager hours/year</strong> spent drafting reviews from scratch (~40 FTE equivalent) before Check-In.
+        At this org scale (~50k employees, ~5k managers), the equivalent figure is multiples larger.
+      </div>
+    </div>
+
+    <div class="legal-box">
+      <h4>⚖️ EU AI Act compliance — addressed by design</h4>
+      <p>
+        AI used in performance evaluation is classified <strong>high-risk</strong> under EU AI Act Annex III (employment).
+        This system is designed for compliance from day one: Claude only <em>drafts</em> from observable artifacts (no opaque scoring),
+        the manager owns and signs every decision, the report sees the same evidence (transparency), and a DPIA + human-oversight
+        log is built into the workflow. EU HQ = highest scrutiny — we lean into it as a feature, not a risk.
+      </p>
+    </div>
+  </div>
+
+  <!-- ─── TWO LOOPS ─────────────────────────────────────────────── -->
+  <div class="demo-panel" id="panel-loops">
+    <div class="panel-h">2 · Two Loops — separate coaching from compensation</div>
+    <div class="plain-words">
+      <div class="pw-label">💡 In plain language</div>
+      <div class="pw-text">
+        Today, one annual conversation tries to do two things that fight each other: <strong>"help you grow"</strong> and <strong>"decide your salary."</strong>
+        When money is on the line, no one says the hard truth — managers soften, reports defend. So we split them.
+        <strong>A monthly growth chat (low stakes, honest, forward-looking)</strong> and a separate <strong>annual decision moment (high stakes, evidenced, transparent)</strong>.
+      </div>
+    </div>
+    <div class="panel-sub">
+      Adobe did this in 2012 — voluntary attrition fell ~30% in year one. Accenture rolled it out for 330,000 employees in 2015. Same playbook, applied at our scale.
+    </div>
+
+    <div class="loops">
+      <div class="loop coaching">
+        <h3>🌀 Coaching Loop — "performance enablement"</h3>
+        <div class="freq">Continuous · monthly cadence · low stakes</div>
+        <ul>
+          <li>Auto-pulse: 2-question check-in to manager + report</li>
+          <li>Claude synthesises last month's evidence + Slack themes into a 1-page coaching note</li>
+          <li>30-min 1:1 around it — focus on growth, not rating</li>
+          <li>Development Focus refreshed quarterly (3 items max)</li>
+          <li>No comp implications · no calibration language</li>
+          <li>Public to skip-level: "are growth conversations actually happening?"</li>
+        </ul>
+      </div>
+      <div class="loop calibration">
+        <h3>⚖️ Calibration Loop — annual, structured, evidenced</h3>
+        <div class="freq">Annual · transparent · high stakes</div>
+        <ul>
+          <li>Aggregates the year's evidence packs + project review ratings</li>
+          <li>Calibration session: managers ranked on evidence quality, not opinions</li>
+          <li>LLM flags pattern bias before discussion (e.g. "Manager X consistently rates [demo group] 0.4 lower")</li>
+          <li>Comp + promotion decisions made <strong>here and only here</strong></li>
+          <li>Outcome: a 1-page snapshot, signed by report</li>
+          <li>Surprises forbidden — every datapoint familiar from coaching loop</li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="margin-top: 22px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 18px;">
+      <div class="card-h" style="margin-bottom: 14px;">Sample coaching note — SBI format · auto-drafted, manager edits before 1:1 <span class="pill pill-violet">Coaching Loop output</span></div>
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <div style="display: grid; grid-template-columns: 90px 1fr; gap: 12px; align-items: start; padding: 12px; background: var(--input-bg); border-radius: var(--radius-sm);">
+          <div style="font-size: 11px; font-weight: 700; color: var(--performing); text-transform: uppercase; letter-spacing: 0.5px; padding-top: 2px;">Situation</div>
+          <div style="font-size: 13px; color: var(--text); line-height: 1.5;">During Q1, Peter led ownership of the IAM Account Recovery documentation project — a cross-team initiative that no one had formally volunteered to own.</div>
+        </div>
+        <div style="display: grid; grid-template-columns: 90px 1fr; gap: 12px; align-items: start; padding: 12px; background: var(--input-bg); border-radius: var(--radius-sm);">
+          <div style="font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; padding-top: 2px;">Behaviour</div>
+          <div style="font-size: 13px; color: var(--text); line-height: 1.5;">He structured the document without being asked, ran three enablement sessions across teams, and incorporated feedback from four different groups in subsequent revisions — consistently going beyond the initial ask.</div>
+        </div>
+        <div style="display: grid; grid-template-columns: 90px 1fr; gap: 12px; align-items: start; padding: 12px; background: var(--input-bg); border-radius: var(--radius-sm);">
+          <div style="font-size: 11px; font-weight: 700; color: var(--exceeding); text-transform: uppercase; letter-spacing: 0.5px; padding-top: 2px;">Impact</div>
+          <div style="font-size: 13px; color: var(--text); line-height: 1.5;">The doc now has 387 views, is cited in 4 other team documents, and measurably reduced average resolution time for recovery tickets from 4.6h to 2.1h. This is L5-level initiative from an L4 role.</div>
+        </div>
+        <div style="display: grid; grid-template-columns: 90px 1fr; gap: 12px; align-items: start; padding: 12px; background: rgba(124,106,247,0.06); border: 1px solid rgba(124,106,247,0.15); border-radius: var(--radius-sm);">
+          <div style="font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; padding-top: 2px;">Growth area</div>
+          <div style="font-size: 13px; color: var(--text); line-height: 1.5;">The Atlassian dashboard drilldown bug has been open since week 3. One area to grow: close the loop on open items rather than moving to the next initiative. Discuss in 1:1.</div>
+        </div>
+      </div>
+      <div style="margin-top: 10px; font-size: 11px; color: var(--text-dim); font-style: italic;">Drafted by the system from 247 evidence items · manager edits before delivery · SBI format ensures consistency across all managers in calibration</div>
+    </div>
+
+    <div class="footnote" style="text-align: center; margin-top: 18px; font-size: 12px;">
+      <strong>Critical lesson from GE (2018)</strong>: removing ratings does not remove differentiation. We keep clear differentiation —
+      we just move the conversation about <em>growth</em> away from the conversation about <em>comp</em>. Avoids the GE trap of
+      quietly reintroducing the old system within 2–3 cycles.
+    </div>
+  </div>
+
+  <!-- ─── PROJECT ROLLUP ─────────────────────────────────────────── -->
+  <div class="demo-panel" id="panel-projects">
+    <div class="panel-h">3 · Project Reviews roll up to a Person Rating</div>
+    <div class="plain-words">
+      <div class="pw-label">💡 In plain language</div>
+      <div class="pw-text">
+        Today, your year is judged by your manager's overall impression — one person, one moment, lots of bias.
+        With this, <strong>every project you finish gets rated by the people who actually worked with you on it</strong> — right after delivery, while memory is fresh.
+        Your year-end rating is the average. <strong>Many honest snapshots beat one summary judgement</strong>, and it's much harder to game with politics.
+      </div>
+    </div>
+    <div class="panel-sub">
+      Deloitte's 4-question model (HBR Apr 2015) cut their PM burden by ~2 million hours/year. Stripe runs a peer-weighted version. Eight to twelve datapoints per person per year — far richer than one manager + four hand-picked 360 reviewers.
+    </div>
+
+    <div class="card">
+      <div class="card-h">Peter's Q1 Project Reviews <span class="pill pill-violet">3 reviewed</span></div>
+      <table class="proj-table">
+        <thead>
+          <tr><th>Project</th><th>Stakeholders</th><th>Outcome</th><th>Rating</th><th>Weight</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>IAM Recovery Walkthrough</strong><br><span style="color: var(--text-muted); font-size: 11px;">Cross-team enablement</span></td>
+            <td>Maria Hill, Natasha R., 3 SHIELD leads</td>
+            <td>Doc + 3 sessions delivered. 387 views, cited 4×.</td>
+            <td class="rating" style="color: var(--exceeding);">4.5</td>
+            <td>30%</td>
+          </tr>
+          <tr>
+            <td><strong>Atlassian Analytics Dashboard</strong><br><span style="color: var(--text-muted); font-size: 11px;">Ownership transferred</span></td>
+            <td>Nick Fury, Thor, SHIELD team</td>
+            <td>Live · drilldown bug still open · positive feedback</td>
+            <td class="rating" style="color: var(--performing);">3.8</td>
+            <td>40%</td>
+          </tr>
+          <tr>
+            <td><strong>Google MFA Reset Investigation</strong><br><span style="color: var(--text-muted); font-size: 11px;">Unblocked process</span></td>
+            <td>Nick Fury, Clint B., Wanda M., Sam W.</td>
+            <td>Identified that reset is no longer a blocker — saves on-call time</td>
+            <td class="rating" style="color: var(--exceeding);">4.6</td>
+            <td>30%</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="rollup">
+        <div>
+          <div class="rollup-label">Weighted aggregate · Q1</div>
+          <div style="font-size: 11px; color: var(--text-dim); margin-top: 4px;">(0.30×4.5) + (0.40×3.8) + (0.30×4.6) = 4.25</div>
+        </div>
+        <div class="rollup-val">4.25 / 5</div>
+      </div>
+    </div>
+
+    <div class="footnote">
+      Each project review is ~15 min from each stakeholder, immediately after delivery. Borrowed directly from Deloitte's 4-question model:
+      <em>"Given what I know of this person's performance, I would always want them on my team"</em> (yes/no scale).
+      <a href="https://hbr.org/2015/04/reinventing-performance-management" target="_blank" style="color: var(--accent);">HBR · Buckingham & Goodall, Apr 2015</a>
+    </div>
+  </div>
+
+  <!-- ─── MANAGER SCORECARD ─────────────────────────────────────── -->
+  <div class="demo-panel" id="panel-scorecard">
+    <div class="panel-h">4 · Manager Scorecard — managers get reviewed too</div>
+    <div class="plain-words">
+      <div class="pw-label">💡 In plain language</div>
+      <div class="pw-text">
+        Today, only employees get reviewed. But who reviews managers? With this, <strong>every manager has their own scorecard</strong>:
+        did your team grow? Did anyone leave who shouldn't have? Are growth conversations actually happening? <strong>Their boss sees the same scorecard</strong> —
+        and it cascades all the way to the C-suite. You can't be a "great manager" if your people aren't growing.
+      </div>
+    </div>
+    <div class="panel-sub">
+      Replaces the theatre of anonymous upward feedback with measurable team-health outcomes. Gartner: manager capability (measured by team outcomes, not training hours) is the #1 differentiator between PM systems that lift performance and ones that don't.
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 18px;">
+      <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #a78bfa); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff;">YA</div>
+      <div>
+        <div style="font-weight: 600;">Nick Fury · Director of Operations</div>
+        <div style="color: var(--text-muted); font-size: 12px;">10 direct reports · last 12 months</div>
+      </div>
+    </div>
+
+    <div class="grid-4">
+      <div class="metric">
+        <div class="metric-label">Team eNPS</div>
+        <div class="metric-value">+62</div>
+        <div class="metric-trend trend-up">↑ +14 vs last cycle</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Regretted attrition</div>
+        <div class="metric-value">0%</div>
+        <div class="metric-trend trend-flat">— flat</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Internal mobility</div>
+        <div class="metric-value">3</div>
+        <div class="metric-trend trend-up">↑ promotions / lateral moves</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Growth conv. completed</div>
+        <div class="metric-value">98%</div>
+        <div class="metric-trend trend-up">↑ vs 73% org avg</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">1:1 cadence adherence</div>
+        <div class="metric-value">94%</div>
+        <div class="metric-trend trend-up">↑ +6%</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Skip-level concerns</div>
+        <div class="metric-value">1</div>
+        <div class="metric-trend trend-flat">— resolved</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Calibration accuracy</div>
+        <div class="metric-value">91%</div>
+        <div class="metric-trend trend-up">vs panel consensus</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Bias flag rate</div>
+        <div class="metric-value">0.02</div>
+        <div class="metric-trend trend-flat">low — within tolerance</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Gender Pay Gap</div>
+        <div class="metric-value">−2.1%</div>
+        <div class="metric-trend trend-up">↑ closing vs last cycle</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Gender Ratio</div>
+        <div class="metric-value">38/62</div>
+        <div class="metric-trend trend-up">↑ F/M · +4pp YoY</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Pulse Score</div>
+        <div class="metric-value">7.9</div>
+        <div class="metric-trend trend-up">↑ +0.6 vs last quarter</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">AI Fluency</div>
+        <div class="metric-value">71%</div>
+        <div class="metric-trend trend-up">↑ team using AI/Gemini actively</div>
+      </div>
+    </div>
+
+    <div style="margin-top: 16px; padding: 14px 18px; background: rgba(124,106,247,0.06); border: 1px solid rgba(124,106,247,0.15); border-radius: var(--radius);">
+      <div style="font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px;">AI Fluency breakdown · per People team KPI framework</div>
+      <div style="display: grid; grid-template-columns: repeat(3,1fr); gap: 12px;">
+        <div style="text-align: center;">
+          <div style="font-size: 22px; font-weight: 700; color: var(--exceeding);">43%</div>
+          <div style="font-size: 11px; color: var(--text-muted);">of Q1 OKRs delivered with AI assist</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="font-size: 22px; font-weight: 700; color: var(--performing);">71%</div>
+          <div style="font-size: 11px; color: var(--text-muted);">of team using Gemini / Claude weekly</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="font-size: 22px; font-weight: 700; color: var(--dev-needed);">29%</div>
+          <div style="font-size: 11px; color: var(--text-muted);">not yet using AI — flagged for dev focus</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 18px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 18px;">
+      <div class="card-h" style="margin-bottom: 14px;">OKR Footprint — Nick Fury's team · Q1 contribution to team objectives <span class="pill pill-blue">Spider view</span></div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: center;">
+        <svg viewBox="-30 -5 320 275" style="width:100%;max-width:280px;margin:0 auto;display:block;">
+          <!-- Grid rings -->
+          <polygon points="130,50 196,90 196,170 130,210 64,170 64,90" fill="none" stroke="#2a2a3a" stroke-width="1"/>
+          <polygon points="130,75 178,102 178,158 130,185 82,158 82,102" fill="none" stroke="#2a2a3a" stroke-width="1"/>
+          <polygon points="130,100 162,118 162,142 130,160 98,142 98,118" fill="none" stroke="#2a2a3a" stroke-width="1"/>
+          <!-- Axis lines -->
+          <line x1="130" y1="130" x2="130" y2="50" stroke="#2a2a3a" stroke-width="1"/>
+          <line x1="130" y1="130" x2="196" y2="90" stroke="#2a2a3a" stroke-width="1"/>
+          <line x1="130" y1="130" x2="196" y2="170" stroke="#2a2a3a" stroke-width="1"/>
+          <line x1="130" y1="130" x2="130" y2="210" stroke="#2a2a3a" stroke-width="1"/>
+          <line x1="130" y1="130" x2="64" y2="170" stroke="#2a2a3a" stroke-width="1"/>
+          <line x1="130" y1="130" x2="64" y2="90" stroke="#2a2a3a" stroke-width="1"/>
+          <!-- Score polygon -->
+          <polygon points="130,56 191,93 189,162 130,203 71,163 70,96" fill="rgba(124,106,247,0.20)" stroke="#7c6af7" stroke-width="2"/>
+          <!-- Dots -->
+          <circle cx="130" cy="56" r="4" fill="#7c6af7"/>
+          <circle cx="191" cy="93" r="4" fill="#7c6af7"/>
+          <circle cx="189" cy="162" r="4" fill="#7c6af7"/>
+          <circle cx="130" cy="203" r="4" fill="#7c6af7"/>
+          <circle cx="71" cy="163" r="4" fill="#7c6af7"/>
+          <circle cx="70" cy="96" r="4" fill="#7c6af7"/>
+          <!-- Labels: LP name line 1, score line 2 -->
+          <text text-anchor="middle" font-family="sans-serif" x="130" y="33">
+            <tspan font-size="9" fill="#7a7a9a">Take Ownership</tspan>
+            <tspan x="130" dy="14" font-size="12" font-weight="700" fill="#7c6af7">88</tspan>
+          </text>
+          <text text-anchor="start" font-family="sans-serif" x="200" y="83">
+            <tspan font-size="9" fill="#7a7a9a">Know Your Craft</tspan>
+            <tspan x="200" dy="14" font-size="12" font-weight="700" fill="#7c6af7">92</tspan>
+          </text>
+          <text text-anchor="start" font-family="sans-serif" x="200" y="163">
+            <tspan font-size="9" fill="#7a7a9a">Ship With Speed</tspan>
+            <tspan x="200" dy="14" font-size="12" font-weight="700" fill="#7c6af7">79</tspan>
+          </text>
+          <text text-anchor="middle" font-family="sans-serif" x="130" y="225">
+            <tspan font-size="9" fill="#7a7a9a">Build the Team</tspan>
+            <tspan x="130" dy="14" font-size="12" font-weight="700" fill="#7c6af7">95</tspan>
+          </text>
+          <text text-anchor="end" font-family="sans-serif" x="60" y="163">
+            <tspan font-size="9" fill="#7a7a9a">Raise the Bar</tspan>
+            <tspan x="60" dy="14" font-size="12" font-weight="700" fill="#7c6af7">84</tspan>
+          </text>
+          <text text-anchor="end" font-family="sans-serif" x="60" y="83">
+            <tspan font-size="9" fill="#7a7a9a">Stay Grounded</tspan>
+            <tspan x="60" dy="14" font-size="12" font-weight="700" fill="#7c6af7">90</tspan>
+          </text>
+        </svg>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px;">Team aggregate · OKR contribution score per LP dimension · Q1 2026</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--input-bg);border-radius:var(--radius-sm);">
+            <div style="font-size:12px;">Take Ownership</div><div style="font-size:13px;font-weight:700;color:var(--exceeding);">88</div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--input-bg);border-radius:var(--radius-sm);">
+            <div style="font-size:12px;">Know Your Craft</div><div style="font-size:13px;font-weight:700;color:var(--exceeding);">92</div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--input-bg);border-radius:var(--radius-sm);">
+            <div style="font-size:12px;">Ship With Speed</div><div style="font-size:13px;font-weight:700;color:var(--dev-needed);">79</div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--input-bg);border-radius:var(--radius-sm);">
+            <div style="font-size:12px;">Build the Team</div><div style="font-size:13px;font-weight:700;color:var(--exceeding);">95</div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--input-bg);border-radius:var(--radius-sm);">
+            <div style="font-size:12px;">Raise the Bar</div><div style="font-size:13px;font-weight:700;color:var(--performing);">84</div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--input-bg);border-radius:var(--radius-sm);">
+            <div style="font-size:12px;">Stay Grounded</div><div style="font-size:13px;font-weight:700;color:var(--exceeding);">90</div>
+          </div>
+          <div style="font-size:11px;color:var(--text-dim);margin-top:4px;font-style:italic;">Dip in "Ship With Speed" (79) flags team pace as a coaching focus for Q2. All other dimensions above org median (76).</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footnote">
+      These are <em>aggregated outcomes</em>, not surveillance. Manager sees their own scorecard; manager's manager sees it as part
+      of <strong>their</strong> own scorecard. Cascades all the way to the C-suite — the only way to move the needle on regretted
+      attrition (Microsoft's measured win under Nadella). Gender Pay Gap, Gender Ratio, Pulse, and AI Fluency added as consistent
+      manager KPIs per People team framework.
+    </div>
+  </div>
+
+  <!-- ─── CAREER FRAMEWORK V2 ───────────────────────────────────── -->
+  <div class="demo-panel" id="panel-framework">
+    <div class="panel-h">5 · Career Framework v2 — nine-box placement + LP scoring + level anchors</div>
+    <div class="plain-words">
+      <div class="pw-label">💡 In plain language</div>
+      <div class="pw-text">
+        Two things matter: <strong>what you delivered</strong> (outcomes, projects, throughput) and <strong>how you showed up</strong> (the six Leadership Principles).
+        The nine-box puts those two axes together. The LP scores prevent a high deliverer with bad behaviours from being promoted.
+        <strong>Fail two or more LPs and your "How" is automatically Low</strong> — no manager discretion, no politics. The guard rule is the system's integrity layer.
+      </div>
+    </div>
+
+    <!-- Nine-box -->
+    <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 18px; margin-bottom: 22px;">
+      <div class="card-h" style="margin-bottom: 6px;">Nine-Box Placement — WHAT (delivery) x HOW (LP score)</div>
+      <div style="background: rgba(248,113,113,0.06); border: 1px solid rgba(248,113,113,0.20); border-left: 3px solid var(--unsatis); border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 14px; font-size: 12px;">
+        <strong style="color: var(--unsatis);">Guard rule:</strong> Below Meets on 2+ LPs = automatic <strong>Low HOW</strong>, regardless of delivery. Calibration panel cannot override. No exceptions.
+      </div>
+      <div style="display: grid; grid-template-columns: 80px repeat(3,1fr); gap: 4px;">
+        <div></div>
+        <div style="text-align:center;font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;padding:6px 4px;">HOW: Below</div>
+        <div style="text-align:center;font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;padding:6px 4px;">HOW: Meets</div>
+        <div style="text-align:center;font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;padding:6px 4px;">HOW: Exceeds</div>
+
+        <div style="display:flex;align-items:center;justify-content:flex-end;font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.4px;padding-right:6px;text-align:right;">Exceeding / Outstanding</div>
+        <div style="background:rgba(251,146,60,0.08);border:1px solid rgba(251,146,60,0.2);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12px 8px;min-height:70px;">
+          <div style="font-size:14px;font-weight:700;color:var(--dev-needed);">Needs Dev</div>
+          <div style="font-size:9px;color:var(--text-dim);margin-top:2px;text-transform:uppercase;letter-spacing:0.3px;">Enigmatic</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:4px;line-height:1.3;">Great output, values gap</div>
+        </div>
+        <div style="position:relative;background:rgba(96,165,250,0.10);border:1px solid rgba(96,165,250,0.3);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12px 8px;min-height:70px;">
+          <div style="position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--performing);" title="Peter P. is here"></div>
+          <div style="font-size:14px;font-weight:700;color:#60a5fa;">Exceeding</div>
+          <div style="font-size:9px;color:var(--text-dim);margin-top:2px;text-transform:uppercase;letter-spacing:0.3px;">Contributor</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:4px;line-height:1.3;">Delivering + values aligned</div>
+        </div>
+        <div style="background:rgba(74,222,128,0.10);border:2px solid var(--exceeding);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12px 8px;min-height:70px;">
+          <div style="font-size:14px;font-weight:700;color:var(--exceeding);">Outstanding</div>
+          <div style="font-size:9px;color:var(--text-dim);margin-top:2px;text-transform:uppercase;letter-spacing:0.3px;">Star</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:4px;line-height:1.3;">Promote immediately</div>
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:flex-end;font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.4px;padding-right:6px;text-align:right;">Performing</div>
+        <div style="background:rgba(251,146,60,0.08);border:1px solid rgba(251,146,60,0.2);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12px 8px;min-height:70px;">
+          <div style="font-size:14px;font-weight:700;color:var(--dev-needed);">Needs Dev</div>
+          <div style="font-size:9px;color:var(--text-dim);margin-top:2px;text-transform:uppercase;letter-spacing:0.3px;">Inconsistent</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:4px;line-height:1.3;">Behaviour PIP needed</div>
+        </div>
+        <div style="background:rgba(122,122,154,0.08);border:1px solid var(--card-border);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12px 8px;min-height:70px;">
+          <div style="font-size:14px;font-weight:700;color:var(--text);">Performing</div>
+          <div style="font-size:9px;color:var(--text-dim);margin-top:2px;text-transform:uppercase;letter-spacing:0.3px;">Core</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:4px;line-height:1.3;">Solid — do not plateau</div>
+        </div>
+        <div style="background:rgba(96,165,250,0.10);border:1px solid rgba(96,165,250,0.3);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12px 8px;min-height:70px;">
+          <div style="font-size:14px;font-weight:700;color:#60a5fa;">Exceeding</div>
+          <div style="font-size:9px;color:var(--text-dim);margin-top:2px;text-transform:uppercase;letter-spacing:0.3px;">Strong</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:4px;line-height:1.3;">High potential — next challenge</div>
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:flex-end;font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.4px;padding-right:6px;text-align:right;">Unsat / Needs Dev</div>
+        <div style="background:rgba(248,113,113,0.18);border:2px solid var(--unsatis);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12px 8px;min-height:70px;">
+          <div style="font-size:14px;font-weight:700;color:var(--unsatis);">Unsat</div>
+          <div style="font-size:9px;color:var(--text-dim);margin-top:2px;text-transform:uppercase;letter-spacing:0.3px;">At Risk</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:4px;line-height:1.3;">PIP or managed exit</div>
+        </div>
+        <div style="background:rgba(251,146,60,0.08);border:1px solid rgba(251,146,60,0.2);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12px 8px;min-height:70px;">
+          <div style="font-size:14px;font-weight:700;color:var(--dev-needed);">Needs Dev</div>
+          <div style="font-size:9px;color:var(--text-dim);margin-top:2px;text-transform:uppercase;letter-spacing:0.3px;">Developing</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:4px;line-height:1.3;">Coach delivery</div>
+        </div>
+        <div style="background:rgba(251,146,60,0.08);border:1px solid rgba(251,146,60,0.2);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12px 8px;min-height:70px;">
+          <div style="font-size:14px;font-weight:700;color:var(--dev-needed);">Needs Dev</div>
+          <div style="font-size:9px;color:var(--text-dim);margin-top:2px;text-transform:uppercase;letter-spacing:0.3px;">Misaligned</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:4px;line-height:1.3;">Role fit review</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:12px;padding:10px 14px;background:var(--input-bg);border-radius:var(--radius-sm);font-size:12px;">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--performing);flex-shrink:0;"></div>
+        <div><strong>Peter P.</strong> rated <strong style="color:#60a5fa;">Exceeding</strong> — WHAT: Exceeding x HOW: Meets (Contributor). 5/6 LPs at Meets or above, guard rule not triggered. Promotion track: 1 cycle.</div>
+      </div>
+    </div>
+
+    <!-- LP Scoring Cards -->
+    <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 18px; margin-bottom: 22px;">
+      <div class="card-h" style="margin-bottom: 14px;">Leadership Principle Scores — Peter P. · Q1 2026 <span class="pill pill-grey">0 guard rule flags</span></div>
+      <div style="display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 12px;">
+        <div style="background:var(--input-bg);border-radius:var(--radius-sm);padding:14px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Take Ownership</div>
+          <div style="font-size:10px;color:var(--text-dim);margin-bottom:8px;">Execute the mission · Plan long-term · Use resources wisely</div>
+          <div style="display:flex;align-items:center;gap:8px;"><div style="flex:1;height:6px;background:var(--card-border);border-radius:3px;overflow:hidden;"><div style="width:88%;height:100%;background:var(--exceeding);border-radius:3px;"></div></div><span style="font-size:12px;font-weight:700;color:var(--exceeding);">Exceeds</span></div>
+        </div>
+        <div style="background:var(--input-bg);border-radius:var(--radius-sm);padding:14px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Know Your Craft</div>
+          <div style="font-size:10px;color:var(--text-dim);margin-bottom:8px;">Question assumptions · Understand the system · Get hands-on</div>
+          <div style="display:flex;align-items:center;gap:8px;"><div style="flex:1;height:6px;background:var(--card-border);border-radius:3px;overflow:hidden;"><div style="width:92%;height:100%;background:var(--exceeding);border-radius:3px;"></div></div><span style="font-size:12px;font-weight:700;color:var(--exceeding);">Exceeds</span></div>
+        </div>
+        <div style="background:var(--input-bg);border-radius:var(--radius-sm);padding:14px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Ship With Speed</div>
+          <div style="font-size:10px;color:var(--text-dim);margin-bottom:8px;">Focus on impact · Move with urgency · Adapt to change</div>
+          <div style="display:flex;align-items:center;gap:8px;"><div style="flex:1;height:6px;background:var(--card-border);border-radius:3px;overflow:hidden;"><div style="width:60%;height:100%;background:var(--performing);border-radius:3px;"></div></div><span style="font-size:12px;font-weight:700;color:var(--performing);">Meets</span></div>
+        </div>
+        <div style="background:var(--input-bg);border-radius:var(--radius-sm);padding:14px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Build the Team</div>
+          <div style="font-size:10px;color:var(--text-dim);margin-bottom:8px;">Lift others up · Stay solution-focused · Create safety</div>
+          <div style="display:flex;align-items:center;gap:8px;"><div style="flex:1;height:6px;background:var(--card-border);border-radius:3px;overflow:hidden;"><div style="width:95%;height:100%;background:var(--exceeding);border-radius:3px;"></div></div><span style="font-size:12px;font-weight:700;color:var(--exceeding);">Exceeds</span></div>
+        </div>
+        <div style="background:var(--input-bg);border-radius:var(--radius-sm);padding:14px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Raise the Bar</div>
+          <div style="font-size:10px;color:var(--text-dim);margin-bottom:8px;">Set high standards · Grow talent · Give honest feedback</div>
+          <div style="display:flex;align-items:center;gap:8px;"><div style="flex:1;height:6px;background:var(--card-border);border-radius:3px;overflow:hidden;"><div style="width:60%;height:100%;background:var(--performing);border-radius:3px;"></div></div><span style="font-size:12px;font-weight:700;color:var(--performing);">Meets</span></div>
+        </div>
+        <div style="background:var(--input-bg);border-radius:var(--radius-sm);padding:14px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Stay Grounded</div>
+          <div style="font-size:10px;color:var(--text-dim);margin-bottom:8px;">Stay open · No ego · Keep improving</div>
+          <div style="display:flex;align-items:center;gap:8px;"><div style="flex:1;height:6px;background:var(--card-border);border-radius:3px;overflow:hidden;"><div style="width:88%;height:100%;background:var(--exceeding);border-radius:3px;"></div></div><span style="font-size:12px;font-weight:700;color:var(--exceeding);">Exceeds</span></div>
+        </div>
+      </div>
+      <div style="padding:10px 14px;background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);border-left:3px solid var(--exceeding);border-radius:var(--radius-sm);font-size:12px;">
+        <strong style="color:var(--exceeding);">Guard rule: not triggered.</strong> 0 of 6 LPs are Below Meets. Peter's "How" rating: <strong>Meets</strong>. Combined with WHAT: Exceeds — placement: <strong style="color:var(--performing);">Contributor</strong>.
+      </div>
+    </div>
+
+    <!-- Existing level grid -->
+    <div class="panel-sub">Level anchors — every dimension grounded in real artifacts, not vague descriptors.</div>
+    <div class="cf-grid">
+      <div class="cf-h">Dimension</div>
+      <div class="cf-h">L3 · Engineer</div>
+      <div class="cf-h">L4 · Senior</div>
+      <div class="cf-h">L5 · Staff</div>
+      <div class="cf-h">L6 · Principal</div>
+
+      <div class="cf-dim">Scope</div>
+      <div class="cf-cell">Owns features</div>
+      <div class="cf-cell">Owns systems</div>
+      <div class="cf-cell">Owns cross-team initiatives</div>
+      <div class="cf-cell">Owns org-wide bets</div>
+
+      <div class="cf-dim">Influence</div>
+      <div class="cf-cell">Influences peers</div>
+      <div class="cf-cell">Influences team</div>
+      <div class="cf-cell">Influences org</div>
+      <div class="cf-cell">Influences company</div>
+
+      <div class="cf-dim">Values &amp; Behaviours ★</div>
+      <div class="cf-cell">Lives SHIELD values · constructive in conflict</div>
+      <div class="cf-cell">Models values for peers · mentors</div>
+      <div class="cf-cell">Sets the bar org-wide · holds others accountable</div>
+      <div class="cf-cell">Defines cultural standards</div>
+
+      <div class="cf-dim cf-ai">AI Augmentation ★</div>
+      <div class="cf-cell cf-ai">Uses AI weekly · &gt;25% of personal output AI-assisted</div>
+      <div class="cf-cell cf-ai">Builds AI-augmented workflows for the team · coaches non-adopters</div>
+      <div class="cf-cell cf-ai">Designs AI-leveraged systems · removes entire categories of manual work</div>
+      <div class="cf-cell cf-ai">Defines AI strategy for the org · accountable for org-wide fluency KPI</div>
+
+      <div class="cf-dim">Anchored example</div>
+      <div class="cf-cell">→ "Resolved 34 IAM tickets, median 2.1h"</div>
+      <div class="cf-cell">→ "Authored IAM recovery doc cited by 4 teams"</div>
+      <div class="cf-cell">→ "Led MFA process redesign, eliminated reset blocker"</div>
+      <div class="cf-cell">→ "Defined SHIELD AI strategy, sponsored by CTO"</div>
+    </div>
+
+    <div class="footnote">
+      Self-service "where am I?" chatbot trained on this framework + your evidence pack — cuts 50% of "am I ready?" 1:1 questions.
+      Framework is a <em>living spec</em>: examples refreshed yearly with anonymised real artifacts from recent promotions.
+    </div>
+  </div>
+
+  <!-- ─── TALENT MARKETPLACE ─────────────────── -->
+  <div class="demo-panel" id="panel-marketplace">
+    <div class="panel-h">6 · Internal Talent Marketplace</div>
+    <div class="plain-words">
+      <div class="pw-label">💡 In plain language</div>
+      <div class="pw-text">
+        Today, when a role opens up, we usually hire externally — expensive, slow, and our own people don't grow.
+        With this, <strong>the system already knows everyone's strengths</strong> (because the Evidence Pack has been collecting them) and
+        <strong>recommends internal candidates automatically</strong>. Cheaper than external hires, your people grow without leaving, and the new role
+        gets filled from someone who already knows the company. People grow by moving sideways, not just by leaving.
+      </div>
+    </div>
+    <div class="panel-sub">
+      Plugs into existing skill-based mobility ambitions. Every evidence pack and project rating feeds the marketplace automatically — no separate skills survey, no LinkedIn-style profile to maintain.
+      Integrates with Workday as the system of record for org structure, role definitions, and headcount approvals — internal candidates surface before an external req is even opened.
+      In a headcount-constrained environment (e.g. cost reduction targets), this is the mechanism that keeps high performers engaged and growing without adding headcount.
+    </div>
+
+    <div class="grid-2">
+      <div class="market-card">
+        <div class="card-h">Open role: Senior IT Engineer · SHIELD EU <span class="pill pill-violet">5 internal candidates</span></div>
+
+        <div style="display:grid;grid-template-columns:32px 1fr 120px 80px 60px;gap:12px;align-items:center;padding:10px 12px;background:var(--input-bg);border-radius:var(--radius-sm);margin-bottom:8px;font-size:13px;">
+          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#4ade80,#60a5fa);display:flex;align-items:center;justify-content:center;font-weight:700;color:#1a1a28;font-size:12px;">PP</div>
+          <div><div class="market-name">Peter Parker</div><div class="market-detail">L4 · evidence shows L5 readiness · IAM + Atlassian expertise</div></div>
+          <div style="text-align:center;"><span style="font-size:10px;padding:3px 8px;border-radius:10px;font-weight:600;background:rgba(248,113,113,0.15);color:var(--unsatis);">SPOF</span><div style="font-size:10px;color:var(--text-dim);margin-top:3px;">Single point of failure · IAM recovery</div></div>
+          <div class="match-bar"><div class="match-fill" style="width: 94%;"></div></div>
+          <div style="font-weight:700; color: var(--exceeding);">94%</div>
+        </div>
+        <div style="display:grid;grid-template-columns:32px 1fr 120px 80px 60px;gap:12px;align-items:center;padding:10px 12px;background:var(--input-bg);border-radius:var(--radius-sm);margin-bottom:8px;font-size:13px;">
+          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#fb923c,#f5c842);display:flex;align-items:center;justify-content:center;font-weight:700;color:#1a1a28;font-size:12px;">NR</div>
+          <div><div class="market-name">Natasha Romanoff</div><div class="market-detail">L4 · M-track lead · cross-region experience · marked open to mobility</div></div>
+          <div style="text-align:center;"><span style="font-size:10px;padding:3px 8px;border-radius:10px;font-weight:600;background:rgba(251,146,60,0.15);color:var(--dev-needed);">High</span><div style="font-size:10px;color:var(--text-dim);margin-top:3px;">Succession: ready in 6-12 mo</div></div>
+          <div class="match-bar"><div class="match-fill" style="width: 81%;"></div></div>
+          <div style="font-weight:700; color: var(--performing);">81%</div>
+        </div>
+        <div style="display:grid;grid-template-columns:32px 1fr 120px 80px 60px;gap:12px;align-items:center;padding:10px 12px;background:var(--input-bg);border-radius:var(--radius-sm);margin-bottom:8px;font-size:13px;">
+          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#a78bfa,#7c6af7);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:12px;">WM</div>
+          <div><div class="market-name">Wanda Maximoff</div><div class="market-detail">L4 · APAC SHIELD · global scope expansion lead · stretch fit</div></div>
+          <div style="text-align:center;"><span style="font-size:10px;padding:3px 8px;border-radius:10px;font-weight:600;background:rgba(122,122,154,0.15);color:var(--text-muted);">Medium</span><div style="font-size:10px;color:var(--text-dim);margin-top:3px;">Succession: ready in 12 mo+</div></div>
+          <div class="match-bar"><div class="match-fill" style="width: 72%;"></div></div>
+          <div style="font-weight:700; color: var(--performing);">72%</div>
+        </div>
+        <div style="font-size:11px;color:var(--text-dim);padding:6px 0;font-style:italic;">Role criticality: SPOF = single point of failure (no backup). Succession column shows readiness of top internal replacement. System flags SPOF roles for immediate succession planning.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-h">Economics — why CFO will sign this</div>
+        <div style="display:flex; flex-direction: column; gap: 14px;">
+          <div>
+            <div style="font-size:11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">External hire cost saved (per fill)</div>
+            <div style="font-size: 24px; font-weight: 700; color: var(--exceeding);">€32,000</div>
+            <div style="font-size: 11px; color: var(--text-dim);">Mercer 2025 EU avg recruiting + onboarding for L4–L5 tech</div>
+          </div>
+          <div>
+            <div style="font-size:11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Internal-fill rate target (Year 1)</div>
+            <div style="font-size: 24px; font-weight: 700;">40% → 65%</div>
+            <div style="font-size: 11px; color: var(--text-dim);">~150 fills/year in SHIELD scope = €4.8M annual saving</div>
+          </div>
+          <div>
+            <div style="font-size:11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Backfill arbitrage</div>
+            <div style="font-size: 24px; font-weight: 700;">~€18K / move</div>
+            <div style="font-size: 11px; color: var(--text-dim);">"Next-level-down backfill" — promote one, hire below</div>
+          </div>
+          <div style="padding-top: 10px; border-top: 1px solid var(--card-border);">
+            <div style="font-size:11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">IC vs Manager hiring strategy</div>
+            <div style="font-size: 13px; color: var(--text); margin-top: 6px; line-height: 1.5;">
+              Marketplace surfaces high-potential ICs first — shifting new headcount toward IC roles and improving M:IC ratio without a separate policy mandate. Internal growth replaces external manager hires.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footnote">
+      The marketplace is the <strong>monetisation engine</strong> for the rest of the system. CFO support unlocks CHRO sponsorship —
+      this is the slide that closes the deal.
+    </div>
+  </div>
+
+  <!-- ─── EARLY WARNING ─────────────────────────────────────────── -->
+  <div class="demo-panel" id="panel-warning">
+    <div class="panel-h">7 · Early Warning System — for trouble <em>and</em> for growth</div>
+    <div class="plain-words">
+      <div class="pw-label">💡 In plain language</div>
+      <div class="pw-text">
+        Today, performance issues get discovered at year-end as nasty surprises. Same with people who are ready for a promotion — managers miss them.
+        With this, the system <strong>watches signals all year</strong> and flags both: <strong>"this person is in trouble" (red)</strong> and <strong>"this person is ready for the next level" (green)</strong> —
+        early enough to actually do something. <strong>No more surprise PIPs. No more missed promotions.</strong>
+      </div>
+    </div>
+    <div class="panel-sub">
+      Symmetrical by design — catches risk <em>and</em> growth. Triggers structured conversations when signals cross thresholds, so action is consistent across managers instead of dependent on individual vigilance.
+    </div>
+
+    <div class="card">
+      <div class="card-h">Live signals across the org · last 30 days</div>
+
+      <div class="alert-row red">
+        <div class="alert-icon">🔴</div>
+        <div>
+          <div class="alert-name">Rashid M. · SHIELD APAC</div>
+          <div class="alert-detail">3 consecutive missed sprint commitments · CSAT dropped 4.6 → 3.9 · skip-level flagged tone in handovers</div>
+        </div>
+        <div><span class="pill pill-red">Action required</span></div>
+        <button class="alert-cta">Open structured 1:1</button>
+      </div>
+
+      <div class="alert-row amber">
+        <div class="alert-icon">🟠</div>
+        <div>
+          <div class="alert-name">Maria P. · SHIELD EU</div>
+          <div class="alert-detail">Collaboration signals down 38% (Slack mentions, doc co-edits) · 1:1 cadence slipped to monthly</div>
+        </div>
+        <div><span class="pill pill-amber">Watch</span></div>
+        <button class="alert-cta">Schedule check-in</button>
+      </div>
+
+      <div class="alert-row amber">
+        <div class="alert-icon">🟠</div>
+        <div>
+          <div class="alert-name">Tomás L. · SHIELD LATAM</div>
+          <div class="alert-detail">No growth conversation in 90 days · Development Focus items unmoved 2 quarters</div>
+        </div>
+        <div><span class="pill pill-amber">Watch</span></div>
+        <button class="alert-cta">Refresh dev plan</button>
+      </div>
+
+      <div class="alert-row green">
+        <div class="alert-icon">🟢</div>
+        <div>
+          <div class="alert-name">Peter P. · SHIELD HQ</div>
+          <div class="alert-detail">Crossing L4 → L5 thresholds on 3 dimensions · candidate for next promo cycle</div>
+        </div>
+        <div><span class="pill pill-green">Promo signal</span></div>
+        <button class="alert-cta">Build promo case</button>
+      </div>
+
+      <div class="alert-row green">
+        <div class="alert-icon">🟢</div>
+        <div>
+          <div class="alert-name">Natasha R. · SHIELD EU Lead</div>
+          <div class="alert-detail">All Hands speaker selected · cross-functional initiative ratings improving · M-track signals strong</div>
+        </div>
+        <div><span class="pill pill-green">Promo signal</span></div>
+        <button class="alert-cta">Build promo case</button>
+      </div>
+    </div>
+
+    <div style="margin-top: 22px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 18px;">
+      <div class="card-h" style="margin-bottom: 14px;">Bias Detection — flagged patterns this quarter <span class="pill pill-amber">3 flags</span></div>
+      <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">System scans for structural bias before calibration. Flags are surfaced to the calibration panel, not to the employee. Manager has 5 days to respond before escalation.</div>
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <div style="display: grid; grid-template-columns: 24px 1fr auto; gap: 12px; align-items: start; padding: 12px 14px; background: rgba(248,113,113,0.06); border-left: 3px solid var(--unsatis); border-radius: var(--radius-sm);">
+          <div style="font-size: 16px;">⚠️</div>
+          <div>
+            <div style="font-size: 13px; font-weight: 600; color: var(--text);">Absence data used in OKR assessment</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">Tomás L. was on parental leave for 6 weeks in Q1. His OKR completion rate (58%) reflects the leave period, not performance. Flagging as potential bias if used in calibration without adjustment.</div>
+          </div>
+          <span style="font-size: 10px; padding: 3px 8px; border-radius: 10px; font-weight: 600; background: rgba(248,113,113,0.15); color: var(--unsatis); white-space: nowrap;">Review required</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 24px 1fr auto; gap: 12px; align-items: start; padding: 12px 14px; background: rgba(251,146,60,0.06); border-left: 3px solid var(--dev-needed); border-radius: var(--radius-sm);">
+          <div style="font-size: 16px;">📊</div>
+          <div>
+            <div style="font-size: 13px; font-weight: 600; color: var(--text);">Recency bias — Manager X rating pattern</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">Nick Fury's ratings correlate 0.82 with Q4 output, but only 0.31 with Q1-Q3 evidence. System detects disproportionate weight on last 8 weeks. Coaching nudge sent to manager before calibration.</div>
+          </div>
+          <span style="font-size: 10px; padding: 3px 8px; border-radius: 10px; font-weight: 600; background: rgba(251,146,60,0.15); color: var(--dev-needed); white-space: nowrap;">Coaching sent</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 24px 1fr auto; gap: 12px; align-items: start; padding: 12px 14px; background: rgba(251,146,60,0.06); border-left: 3px solid var(--dev-needed); border-radius: var(--radius-sm);">
+          <div style="font-size: 16px;">👥</div>
+          <div>
+            <div style="font-size: 13px; font-weight: 600; color: var(--text);">Similarity bias — team composition</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">SHIELD EU team: top 3 rated employees share the same academic background as their manager. Pattern is within tolerance (below 2-sigma) but flagged for awareness going into calibration.</div>
+          </div>
+          <span style="font-size: 10px; padding: 3px 8px; border-radius: 10px; font-weight: 600; background: rgba(251,146,60,0.15); color: var(--dev-needed); white-space: nowrap;">Awareness flag</span>
+        </div>
+      </div>
+      <div style="margin-top: 12px; font-size: 11px; color: var(--text-dim); font-style: italic;">All flags are reviewed by the People team before calibration. Employees are not informed of specific flags — only the outcome (if any) is communicated. GDPR-compliant by design: no individual profiling, only statistical pattern detection.</div>
+    </div>
+
+    <div class="footnote">
+      Same system surfaces <strong>positive</strong> signals (promotion candidates) — not just risks. The framing is symmetrical.
+    </div>
+  </div>
+
+  <!-- ─── PROJECTION ───────────────────────────────────────────── -->
+  <div class="demo-panel" id="panel-projection">
+    <div class="panel-h">8 · Projection — where is this person heading?</div>
+    <div class="plain-words">
+      <div class="pw-label">💡 In plain language</div>
+      <div class="pw-text">
+        Most systems only tell you where someone <em>is</em>. This tab tells you where they are <strong>going</strong>: are they growing, plateauing, or at risk of leaving?
+        Is their current role the right one? What does their next move look like? <strong>The manager gets a one-page projection they can walk into a 1:1 with</strong> — not a vague feeling, a structured view.
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;padding:16px 20px;background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);">
+      <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#4ade80,#60a5fa);display:flex;align-items:center;justify-content:center;font-weight:700;color:#1a1a28;font-size:16px;">PP</div>
+      <div>
+        <div style="font-weight:700;font-size:16px;">Peter Parker</div>
+        <div style="color:var(--text-muted);font-size:12px;">L4 Senior IT Engineer · SHIELD HQ · 2.5 years in role</div>
+      </div>
+      <div style="margin-left:auto;text-align:right;">
+        <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">Nine-Box</div>
+        <div style="font-size:18px;font-weight:700;color:var(--performing);">Contributor</div>
+      </div>
+    </div>
+
+    <div class="grid-3" style="margin-bottom:20px;">
+      <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:18px;text-align:center;">
+        <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Individual Readiness</div>
+        <div style="font-size:32px;font-weight:700;color:var(--performing);">84<span style="font-size:16px;">/100</span></div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:6px;">Delivery + LP score + time in role composite</div>
+        <div style="margin-top:10px;height:6px;background:var(--card-border);border-radius:3px;overflow:hidden;"><div style="width:84%;height:100%;background:var(--performing);border-radius:3px;"></div></div>
+      </div>
+      <div style="background:var(--card-bg);border:1px solid rgba(74,222,128,0.3);border-radius:var(--radius);padding:18px;text-align:center;">
+        <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Flight Risk</div>
+        <div style="font-size:32px;font-weight:700;color:var(--exceeding);">Low</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:6px;">High engagement · promo signal active · no disengagement markers</div>
+        <div style="margin-top:12px;display:flex;gap:6px;justify-content:center;">
+          <div style="width:12px;height:12px;border-radius:50%;background:var(--exceeding);"></div>
+          <div style="width:12px;height:12px;border-radius:50%;background:var(--card-border);"></div>
+          <div style="width:12px;height:12px;border-radius:50%;background:var(--card-border);"></div>
+        </div>
+      </div>
+      <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:18px;text-align:center;">
+        <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Growth Trajectory</div>
+        <div style="font-size:32px;font-weight:700;color:var(--exceeding);">↑ Rising</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:6px;">3 consecutive quarters above expectation · trend accelerating</div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-bottom:20px;">
+      <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:18px;">
+        <div class="card-h" style="margin-bottom:14px;">Recommended next move <span class="pill pill-green">System recommendation</span></div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="padding:12px;background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.25);border-left:3px solid var(--exceeding);border-radius:var(--radius-sm);">
+            <div style="font-size:13px;font-weight:700;color:var(--exceeding);">1. Promote in place — L4 → L5</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Evidence pack supports L5 scope. Guard rule clear. Recommend next promo cycle. Match: 91%</div>
+          </div>
+          <div style="padding:12px;background:var(--input-bg);border:1px solid var(--card-border);border-radius:var(--radius-sm);">
+            <div style="font-size:13px;font-weight:600;">2. Lateral: SHIELD EU Senior Role</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Cross-region experience would accelerate L6 readiness. Match: 78%</div>
+          </div>
+          <div style="padding:12px;background:var(--input-bg);border:1px solid var(--card-border);border-radius:var(--radius-sm);">
+            <div style="font-size:13px;font-weight:600;">3. Develop in role — close dashboard bug</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">If promo not yet approved: close open deliverables, demonstrate ownership loop. 1 quarter.</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:18px;">
+        <div class="card-h" style="margin-bottom:14px;">Flight risk factors <span class="pill pill-green">Low overall</span></div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--input-bg);border-radius:var(--radius-sm);">
+            <div style="font-size:12px;">Tenure in current role</div>
+            <span style="font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;background:rgba(251,146,60,0.15);color:var(--dev-needed);">Watch · 2.5 yrs</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--input-bg);border-radius:var(--radius-sm);">
+            <div style="font-size:12px;">Last promotion gap</div>
+            <span style="font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;background:rgba(251,146,60,0.15);color:var(--dev-needed);">18 months</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--input-bg);border-radius:var(--radius-sm);">
+            <div style="font-size:12px;">Engagement score trend</div>
+            <span style="font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;background:rgba(74,222,128,0.15);color:var(--exceeding);">Rising +0.4</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--input-bg);border-radius:var(--radius-sm);">
+            <div style="font-size:12px;">1:1 attendance (last 6 wks)</div>
+            <span style="font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;background:rgba(74,222,128,0.15);color:var(--exceeding);">100%</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--input-bg);border-radius:var(--radius-sm);">
+            <div style="font-size:12px;">Promo case open</div>
+            <span style="font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;background:rgba(74,222,128,0.15);color:var(--exceeding);">Yes · active</span>
+          </div>
+        </div>
+        <div style="margin-top:10px;font-size:11px;color:var(--text-dim);font-style:italic;">Tenure (2.5y) and promo gap (18mo) are the only amber flags. Mitigated by active promo case and rising engagement. Net: Low flight risk.</div>
+      </div>
+    </div>
+
+    <div style="background:rgba(124,106,247,0.06);border:1px solid rgba(124,106,247,0.15);border-radius:var(--radius);padding:16px 20px;">
+      <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">1:1 prep note — generated for manager · edits before use</div>
+      <div style="font-size:13px;color:var(--text);line-height:1.6;">
+        Peter is in a strong position: rising trajectory, low flight risk, promo case active. The main risk is tenure — 2.5 years in level is the outer edge of "normal." The conversation should preview the promotion timeline concretely rather than leaving it vague. If promo is not cycle-ready, give him the specific delta, not just encouragement. The Atlassian dashboard bug is the one open item that could slow the promo case — worth naming it directly and agreeing a close date.
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ─── CASE STUDIES ─────────────────────────────────────────── -->
+  <div class="demo-panel" id="panel-cases">
+    <div class="panel-h">📚 What leading companies actually tried — and what worked</div>
+    <div class="plain-words">
+      <div class="pw-label">💡 In plain language</div>
+      <div class="pw-text">
+        These ideas aren't theoretical. <strong>Adobe, Microsoft, Google, Netflix, Deloitte, Accenture, GE, and Stripe have all redesigned their performance reviews</strong> over the past 10–15 years.
+        Some succeeded (Adobe, Accenture). Some made things worse (Google's GRAD, GE's removal of all differentiation). The patterns are clear — this panel shows what worked, what backfired, and what to avoid.
+      </div>
+    </div>
+    <div class="panel-sub">
+      Receipts with sources. Where a number is cited, the link is verifiable. The case studies are also a defence against the "we don't know what would happen" objection — others have run this experiment.
+    </div>
+
+    <div class="grid-3">
+      <div class="case-card">
+        <div class="case-logo">Adobe</div>
+        <div class="case-tag">Check-In · 2012</div>
+        <div class="case-section">
+          <div class="lbl">What changed</div>
+          <div class="val">Killed annual reviews + stack ranking. Quarterly forward-looking "Check-Ins". Comp decoupled.</div>
+        </div>
+        <div class="case-section">
+          <div class="lbl">Result</div>
+          <div class="val">Voluntary attrition <strong>–30%</strong>; involuntary attrition +50% (faster action on low performers); ~80,000 manager hours saved/year.</div>
+        </div>
+        <div class="case-quote">
+          "We were spending 80,000 hours a year on something nobody liked." — Donna Morris, SVP HR
+        </div>
+      </div>
+
+      <div class="case-card">
+        <div class="case-logo">Microsoft</div>
+        <div class="case-tag">Connect · 2013, deepened by Nadella</div>
+        <div class="case-section">
+          <div class="lbl">What changed</div>
+          <div class="val">Killed forced distribution / "the curve". Replaced with frequent "Connects" focused on impact + contribution to <em>others'</em> success.</div>
+        </div>
+        <div class="case-section">
+          <div class="lbl">Result</div>
+          <div class="val">Cultural shift away from talent hoarding; Glassdoor / engagement scores climbed sharply; "growth mindset" became a corporate operating principle.</div>
+        </div>
+        <div class="case-quote">
+          "We need to move from a know-it-all to a learn-it-all culture." — Satya Nadella
+        </div>
+      </div>
+
+      <div class="case-card">
+        <div class="case-logo">Google</div>
+        <div class="case-tag">GRAD · 2022</div>
+        <div class="case-section">
+          <div class="lbl">What changed</div>
+          <div class="val">Cut from 2x/year to annual. New 5-tier rating, more "Significant Impact" by design. More pay differentiation at top.</div>
+        </div>
+        <div class="case-section">
+          <div class="lbl">What backfired</div>
+          <div class="val"><strong>Comms.</strong> Employees read GRAD as cost-cutting in disguise — coincided with budget tightening. Sundar held an all-hands to address backlash.</div>
+        </div>
+        <div class="case-quote">
+          Lesson for DH: never roll out PM redesign in the same quarter as a comp freeze.
+        </div>
+      </div>
+
+      <div class="case-card">
+        <div class="case-logo">Netflix</div>
+        <div class="case-tag">No formal reviews</div>
+        <div class="case-section">
+          <div class="lbl">What changed</div>
+          <div class="val">Continuous informal 360 ("start/stop/continue"). Annual "keeper test". Generous severance instead of PIPs.</div>
+        </div>
+        <div class="case-section">
+          <div class="lbl">What backfired</div>
+          <div class="val">Reported fear culture (NYT 2018). <strong>Not transferable to 50k employees</strong> — assumes only senior, autonomous talent. Cherry-pick the principles, not the model.</div>
+        </div>
+        <div class="case-quote">
+          Useful for: candor norms, severance-not-PIP for clear misfits.
+        </div>
+      </div>
+
+      <div class="case-card">
+        <div class="case-logo">Deloitte</div>
+        <div class="case-tag">4-Question Model · 2015</div>
+        <div class="case-section">
+          <div class="lbl">What changed</div>
+          <div class="val">Killed cascading goals + ratings + 360s. Project leaders answer 4 forward-looking questions per person, per project.</div>
+        </div>
+        <div class="case-section">
+          <div class="lbl">Result</div>
+          <div class="val">Saved <strong>~2 million hours/year</strong> firm-wide. Real-time signal replaces historical record.</div>
+        </div>
+        <div class="case-quote">
+          "We're after real-time insight into performance, not historical data." — Buckingham & Goodall, HBR
+        </div>
+      </div>
+
+      <div class="case-card">
+        <div class="case-logo">Accenture</div>
+        <div class="case-tag">Performance Achievement · 2015</div>
+        <div class="case-section">
+          <div class="lbl">What changed</div>
+          <div class="val">Eliminated annual reviews + ratings + forced ranking for <strong>330,000 employees</strong>. Continuous app-based feedback.</div>
+        </div>
+        <div class="case-section">
+          <div class="lbl">Result</div>
+          <div class="val">Estimated multi-hundred-million-dollar manager-time saving. Pay differentiation rebuilt iteratively over 3 cycles.</div>
+        </div>
+        <div class="case-quote">
+          "If you believe you selected the right person, give them freedom to innovate." — Pierre Nanterme, CEO
+        </div>
+      </div>
+
+      <div class="case-card">
+        <div class="case-logo">GE</div>
+        <div class="case-tag">PD@GE · 2016 → quietly reversed 2018</div>
+        <div class="case-section">
+          <div class="lbl">What changed</div>
+          <div class="val">Killed Welch-era 20-70-10 stack ranking. App-based continuous "insights/considerations".</div>
+        </div>
+        <div class="case-section">
+          <div class="lbl">What backfired</div>
+          <div class="val">Removed ratings <em>and</em> differentiation. Top performers felt invisible. Larry Culp <strong>quietly reintroduced ratings</strong> in 2018.</div>
+        </div>
+        <div class="case-quote">
+          The lesson: keep differentiation, kill the ranking ceremony.
+        </div>
+      </div>
+
+      <div class="case-card">
+        <div class="case-logo">Stripe</div>
+        <div class="case-tag">Project-based + peer-weighted</div>
+        <div class="case-section">
+          <div class="lbl">What works</div>
+          <div class="val">Bi-annual cycles aligned to project arcs. 4–6 jointly-chosen peer reviewers per person. Ratings exist but are de-emphasised in conversation.</div>
+        </div>
+        <div class="case-section">
+          <div class="lbl">Watch-out</div>
+          <div class="val">Peer-review tax — engineers report writing 6+ reviews each cycle. Cap reviewer requests per person.</div>
+        </div>
+        <div class="case-quote">
+          Works because peers see engineering work better than managers do. Same logic for IT/Ops.
+        </div>
+      </div>
+
+      <div class="case-card">
+        <div class="case-logo">Industry trend</div>
+        <div class="case-tag">Forced ranking is dead, differentiation isn't</div>
+        <div class="case-section">
+          <div class="lbl">Data</div>
+          <div class="val">Fortune 500 using forced ranking: <strong>49% (2009) → ~14% (2018)</strong>. But: GE, Google (GRAD tiers), Amazon (URA), Meta have all quietly re-added cohort identification.</div>
+        </div>
+        <div class="case-section">
+          <div class="lbl">Implication</div>
+          <div class="val">The honest framing: don't promise "no differentiation." Promise <strong>fair, evidenced, transparent</strong> differentiation instead.</div>
+        </div>
+        <div class="case-quote">
+          Source: CEB / Gartner (verify before pitch)
+        </div>
+      </div>
+    </div>
+
+    <div class="footnote">
+      <strong>Common failure modes to acknowledge in the meeting:</strong>
+      (1) Removing ratings without replacing differentiation (GE);
+      (2) Coupling redesign with comp cuts (Google);
+      (3) Under-investing in manager capability — the #1 cause of redesign failure;
+      (4) Treating it as an HR project, not a business transformation;
+      (5) Free-text bias — gendered/personality-focused feedback for underrepresented groups (Stanford VMware Women's Lab, 2014).
+    </div>
+  </div>
+
+  <div style="margin-top: 40px; padding: 22px; border: 1px dashed var(--card-border); border-radius: var(--radius); text-align: center;">
+    <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px;">A working prototype, not a finished proposal</div>
+    <div style="font-size: 14px; color: var(--text); max-width: 760px; margin: 0 auto; line-height: 1.6;">
+      Built to explore <em>what's possible</em> based on research from companies that have already redesigned their reviews.
+      Each of the seven modules can be piloted independently. The AI layer means we don't need a 12-month rollout to learn what works —
+      a single team can test a module in a quarter and deprioritise it if it doesn't move the needle.
+    </div>
+  </div>
+
+</div>
+
+<script>
+  document.querySelectorAll('.demo-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.demo-tab').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.demo-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+      btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      document.querySelector('.demo-tabs').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+</script>
+
+</body>
+</html>
